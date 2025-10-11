@@ -30,6 +30,15 @@ export default function DatasetBrowser() {
   const [selectedProvider, setSelectedProvider] = useState<"openai" | "custom">("openai");
   const [selectedConnection, setSelectedConnection] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("gpt-3.5-turbo");
+  
+  // Manual fine-tuning parameters
+  const [manualParams, setManualParams] = useState({
+    learningRate: 0.00003,
+    batchSize: 16,
+    epochs: 3,
+    loraRank: 8,
+    loraAlpha: 16,
+  });
 
   const datasets = useQuery(api.datasets.list, {
     language: languageFilter || undefined,
@@ -88,7 +97,16 @@ export default function DatasetBrowser() {
 
   const handleStartFineTuning = (datasetId: Id<"datasets">, mode: "manual" | "auto") => {
     if (mode === "manual") {
-      navigate(`/finetune/new?datasetId=${datasetId}`);
+      // Pass manual parameters as URL params
+      const params = new URLSearchParams({
+        datasetId,
+        learningRate: manualParams.learningRate.toString(),
+        batchSize: manualParams.batchSize.toString(),
+        epochs: manualParams.epochs.toString(),
+        loraRank: manualParams.loraRank.toString(),
+        loraAlpha: manualParams.loraAlpha.toString(),
+      });
+      navigate(`/finetune/new?${params.toString()}`);
     } else {
       // Build query params for AI-optimized mode
       const params = new URLSearchParams({
@@ -350,7 +368,7 @@ export default function DatasetBrowser() {
 
       {/* Configuration Dialog */}
       <Dialog open={!!configDatasetId} onOpenChange={() => setConfigDatasetId(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Configure Normalization & Fine-tuning</DialogTitle>
             <DialogDescription>
@@ -407,7 +425,7 @@ export default function DatasetBrowser() {
                   <CardContent className="pt-6">
                     <h4 className="font-semibold mb-2">Manual</h4>
                     <p className="text-sm text-muted-foreground">
-                      Configure all parameters yourself in the fine-tuning wizard
+                      Configure all parameters yourself
                     </p>
                   </CardContent>
                 </Card>
@@ -428,6 +446,71 @@ export default function DatasetBrowser() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Manual Parameters (only for Manual mode) */}
+              {finetuneMode === "manual" && (
+                <div className="space-y-4 pt-4 border-t">
+                  <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="learningRate" className="text-xs">Learning Rate</Label>
+                      <Input
+                        id="learningRate"
+                        type="number"
+                        step="0.00001"
+                        min="0.00001"
+                        max="0.001"
+                        value={manualParams.learningRate}
+                        onChange={(e) => setManualParams({ ...manualParams, learningRate: parseFloat(e.target.value) || 0.00003 })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="batchSize" className="text-xs">Batch Size</Label>
+                      <Input
+                        id="batchSize"
+                        type="number"
+                        min="1"
+                        max="128"
+                        value={manualParams.batchSize}
+                        onChange={(e) => setManualParams({ ...manualParams, batchSize: parseInt(e.target.value) || 16 })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="epochs" className="text-xs">Epochs</Label>
+                      <Input
+                        id="epochs"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={manualParams.epochs}
+                        onChange={(e) => setManualParams({ ...manualParams, epochs: parseInt(e.target.value) || 3 })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="loraRank" className="text-xs">LoRA Rank</Label>
+                      <Input
+                        id="loraRank"
+                        type="number"
+                        min="1"
+                        max="64"
+                        value={manualParams.loraRank}
+                        onChange={(e) => setManualParams({ ...manualParams, loraRank: parseInt(e.target.value) || 8 })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="loraAlpha" className="text-xs">LoRA Alpha</Label>
+                      <Input
+                        id="loraAlpha"
+                        type="number"
+                        min="1"
+                        max="128"
+                        value={manualParams.loraAlpha}
+                        onChange={(e) => setManualParams({ ...manualParams, loraAlpha: parseInt(e.target.value) || 16 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Base Model Selection (only for AI-Optimized mode) */}
               {finetuneMode === "auto" && (
