@@ -138,7 +138,7 @@ export const create = mutation({
   },
 });
 
-// Get job status
+// Get job status (make it internal as well for backend use)
 export const getStatus = query({
   args: { jobId: v.id("finetune_jobs") },
   handler: async (ctx, args) => {
