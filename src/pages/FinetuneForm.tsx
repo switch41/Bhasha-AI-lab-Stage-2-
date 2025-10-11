@@ -123,9 +123,8 @@ export default function FinetuneForm() {
                   <Select
                     value={selectedDatasetId ?? undefined}
                     onValueChange={(value) => setSelectedDatasetId(value as Id<"datasets">)}
-                    required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a dataset" />
                     </SelectTrigger>
                     <SelectContent>
@@ -141,8 +140,8 @@ export default function FinetuneForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="provider">Provider *</Label>
-                    <Select value={provider} onValueChange={setProvider} required>
-                      <SelectTrigger>
+                    <Select value={provider} onValueChange={setProvider}>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
                       <SelectContent>
@@ -155,8 +154,8 @@ export default function FinetuneForm() {
 
                   <div className="space-y-2">
                     <Label htmlFor="model">Base Model *</Label>
-                    <Select value={model} onValueChange={setModel} required>
-                      <SelectTrigger>
+                    <Select value={model} onValueChange={setModel}>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select model" />
                       </SelectTrigger>
                       <SelectContent>
