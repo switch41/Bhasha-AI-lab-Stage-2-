@@ -1,0 +1,3 @@
+llmConnections
+  .filter((conn) => conn.isActive)
+  .map((conn) => ...)
