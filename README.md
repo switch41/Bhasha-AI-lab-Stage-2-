@@ -1,21 +1,166 @@
+# Culture AI Suite (Bhasha AI Lab)
+
 ## Overview
 
-This project uses the following tech stack:
-- Vite
-- Typescript
-- React Router v7 (all imports from `react-router` instead of `react-router-dom`)
-- React 19 (for frontend components)
-- Tailwind v4 (for styling)
-- Shadcn UI (for UI components library)
-- Lucide Icons (for icons)
-- Convex (for backend & database)
-- Convex Auth (for authentication)
-- Framer Motion (for animations)
-- Three js (for 3d models)
+**Culture AI Suite** is a comprehensive platform for building and fine-tuning AI models for low-resource Indian languages. This application empowers communities to contribute linguistic content, create curated datasets, and train custom AI models while preserving cultural and linguistic diversity.
+
+### Tech Stack
+- **Frontend**: Vite, React 19, TypeScript, React Router v7
+- **Styling**: Tailwind v4, Shadcn UI, Framer Motion
+- **Backend & Database**: Convex (real-time serverless backend)
+- **Authentication**: Convex Auth (Email OTP, Anonymous)
+- **AI Integrations**: OpenAI (GPT-3.5, GPT-4), Google Gemini
+- **Icons**: Lucide Icons
+- **Package Manager**: pnpm
 
 All relevant files live in the 'src' directory.
 
-Use pnpm for the package manager.
+## 🚀 Key Features
+
+### 1. Authentication & User Management
+- **Email OTP Authentication**: Secure passwordless login
+- **Anonymous Guest Access**: Try the platform without registration
+- **Role-Based Access Control**: Admin, User, Member roles
+- **Activity Logging**: Track all key user actions
+
+### 2. Content Management
+- **Content Contribution**: Add linguistic content (text, proverbs, narratives)
+- **Rich Metadata**: Language, region, category, source, dialect, cultural context
+- **Draft/Published Workflow**: Review before publishing
+- **AI Quality Analysis**: Optional Gemini API integration for automated scoring
+- **Auto-deduplication**: Prevents duplicate entries (85% similarity threshold)
+- **Comprehensive Validation**:
+  - Text length: 10-10,000 characters
+  - Token count: max 2000 tokens
+  - Supported languages: Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Odia
+- **Content Browser**: Search and filter by language, type, status
+
+### 3. Dataset Creation & Management
+- **Dataset Builder**: Create curated datasets from published content
+- **Advanced Filtering**: By language, content type, minimum quality score
+- **Tokenization Analysis**: Detailed metrics (avg, median, min, max, stdDev, percentiles)
+- **Dataset Normalization**:
+  - **Manual Mode**: Custom text length, quality score, duplicate removal
+  - **AI-Powered Mode**: Smart cleanup (min 50 chars, quality ≥5.0, auto-dedup)
+- **Data Splitting**: Configurable train/validation/test splits
+- **Export Functionality**: JSONL format for training
+- **Dataset Browser**: View, filter, preview, and export datasets
+
+### 4. Fine-tuning System
+- **Unified Base Model Selection**:
+  - OpenAI models (GPT-3.5 Turbo, GPT-4)
+  - Custom LLM connections
+  - Automatic provider inference
+- **AI Parameter Optimization**:
+  - Dynamic learning rate based on dataset size
+  - Batch size adjustment for token variance
+  - Epoch recommendations
+  - LoRA rank and alpha configuration (4-64 rank based on complexity)
+  - Cost and time estimates
+- **Smart Split Feature**:
+  - **AI-Optimized Split**: Analyzes dataset size for optimal ratios
+  - **Manual Split**: Custom percentage input with validation
+  - Real-time sample count display
+  - Reasoning and confidence scores
+- **Manual Parameter Configuration**: Full control over hyperparameters
+- **Auto-Fine-tuning**: Trigger training upon dataset creation
+
+### 5. Job Monitoring & Tracking
+- **Real-time Job Tracking**: Progress, metrics, status updates
+- **OpenAI Integration**: Live status polling and synchronization
+- **Job Metrics**: Loss history, steps, current epoch
+- **Job Cancellation**: Cancel running jobs
+- **Status Filtering**: View by status (pending, running, completed, failed, cancelled)
+- **Cost & Time Estimates**: Display estimated costs and duration
+
+### 6. LLM Connections Management
+- **Custom LLM Integration**: Connect external LLM providers
+- **Configuration Options**:
+  - API endpoints
+  - Authentication types (Bearer, API Key, None)
+  - Data formats (JSONL, JSON, CSV)
+  - Model identifiers
+- **Connection Testing**: Verify LLM connections
+- **Active/Inactive Toggle**: Enable/disable connections
+
+### 7. External Dataset Import
+- **Multi-source Support**: Kaggle, file upload, URL
+- **Data Format Detection**: Automatic format recognition
+- **Field Mapping**: Map external fields to internal schema
+- **Record Validation**: Required fields, text/token length, quality, language
+- **Data Transformation**: Normalization and cleaning
+- **Deduplication**: Remove duplicate entries
+- **Pipeline Configuration**: Automated dataset creation and fine-tuning
+
+### 8. Results Comparison & Testing
+- **Test Prompt Management**: Add test prompts to completed jobs
+- **Model Evaluation**: Compare base model vs fine-tuned model outputs
+- **Metrics Calculation**: BLEU score and cultural accuracy
+- **Evaluation Status Tracking**: Monitor evaluation progress
+
+### 9. Dashboard & Analytics
+- **Statistics Overview**: Total content, datasets, fine-tune jobs, average quality
+- **Quick Actions**: Add content, create dataset, start fine-tuning, manage LLMs, import data
+- **Recent Activities**: View recent user actions
+- **LLM Connection Status**: Active/total connections display
+- **Real-time Progress**: Active fine-tuning job progress
+
+### 10. Landing Page
+- **Mission Statement**: Project overview and goals
+- **Feature Highlights**: Content contribution, dataset creation, AI fine-tuning
+- **Key Statistics**: Real-time project metrics
+- **Call-to-Actions**: For authenticated and unauthenticated users
+- **Status Bar**: LLM connections, datasets, active jobs
+
+### 11. Backend Infrastructure
+- **Convex Backend**: Real-time database and server functions
+- **Cron Jobs**: Automated job polling (every 5 minutes)
+- **Provider Integrations**:
+  - OpenAI (GPT-3.5, GPT-4)
+  - Google Gemini (quality analysis)
+  - Custom LLM providers
+- **Internal Actions**: Scheduled background tasks
+- **Data Export**: JSONL format for training
+
+## 🎨 UI/UX Features
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Framer Motion Animations**: Smooth page transitions and interactions
+- **Shadcn UI Components**: Consistent, modern design system
+- **Dark/Light Theme Support**: Using oklch color format
+- **Toast Notifications**: Real-time feedback for user actions
+- **Loading States**: Spinners and progress indicators
+- **Form Validation**: Client-side and server-side validation
+
+## 📊 Database Schema
+
+The application uses 11 Convex tables:
+- `users`: User accounts and roles
+- `content`: Linguistic content entries
+- `datasets`: Curated training datasets
+- `finetune_jobs`: AI model training jobs
+- `test_prompts`: Model evaluation prompts
+- `activities`: User activity logs
+- `llm_connections`: Custom LLM integrations
+- `external_datasets`: Imported external data
+- `import_pipelines`: Data import workflows
+- `field_mappings`: Field mapping templates
+
+## 🛣️ Application Routes
+
+- `/` - Landing page
+- `/auth` - Authentication (sign in/sign up)
+- `/dashboard` - Main dashboard
+- `/content` - Content browser
+- `/content/new` - Add new content
+- `/content/:id` - Edit content
+- `/datasets` - Dataset browser
+- `/datasets/create` - Create dataset
+- `/finetune` - Fine-tuning jobs list
+- `/finetune/new` - Start fine-tuning
+- `/finetune/:id` - Job monitoring
+- `/results/:id` - Results comparison
+- `/llm-connections` - LLM connections management
+- `/external-import` - External dataset import
 
 ## Setup
 
