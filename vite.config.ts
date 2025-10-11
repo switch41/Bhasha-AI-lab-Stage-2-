@@ -15,7 +15,7 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "assets",
     sourcemap: false,
-    minify: "terser",
+    minify: "esbuild", // Use esbuild for faster builds
     rollupOptions: {
       output: {
         manualChunks: {
@@ -24,12 +24,6 @@ export default defineConfig({
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-select"],
           utils: ["clsx", "tailwind-merge", "class-variance-authority"],
         },
-      },
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
       },
     },
   },
