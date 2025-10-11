@@ -1,0 +1,8 @@
+   {
+     "messages": [
+       {"role": "system", "content": "AI trained on [language] data"},
+       {"role": "user", "content": "[content text]"},
+       {"role": "assistant", "content": "[content text]"}
+     ]
+   }
+   
