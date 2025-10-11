@@ -24,6 +24,9 @@ export default function DatasetBrowser() {
   const [minQuality, setMinQuality] = useState<number>(0);
   const [minSize, setMinSize] = useState<number>(0);
   const [previewDatasetId, setPreviewDatasetId] = useState<Id<"datasets"> | null>(null);
+  const [configDatasetId, setConfigDatasetId] = useState<Id<"datasets"> | null>(null);
+  const [normalizeMode, setNormalizeMode] = useState<"manual" | "auto">("manual");
+  const [finetuneMode, setFinetuneMode] = useState<"manual" | "auto">("manual");
 
   const datasets = useQuery(api.datasets.list, {
     language: languageFilter || undefined,
@@ -51,26 +54,52 @@ export default function DatasetBrowser() {
     toast.success("Dataset export started! Download will begin shortly.");
   };
 
-  const handleNormalize = async (datasetId: Id<"datasets">) => {
+  const handleNormalize = async (datasetId: Id<"datasets">, mode: "manual" | "auto") => {
     try {
-      toast.info("Normalizing dataset...");
+      toast.info(`Normalizing dataset (${mode} mode)...`);
+      
+      const options = mode === "auto" 
+        ? {
+            removeDuplicates: true,
+            minTextLength: 50,
+            minQualityScore: 5.0,
+          }
+        : {
+            removeDuplicates: true,
+            minTextLength: 10,
+            minQualityScore: 0,
+          };
+      
       const result = await normalizeDataset({
         id: datasetId,
-        options: {
-          removeDuplicates: true,
-          minTextLength: 10,
-          minQualityScore: 0,
-        },
+        options,
       });
-      toast.success(`Dataset normalized! Removed ${result.removed} entries.`);
+      
+      toast.success(`Dataset normalized (${mode})! Removed ${result.removed} entries.`);
     } catch (error) {
       toast.error("Failed to normalize dataset");
       console.error(error);
     }
   };
 
-  const handleStartFineTuning = (datasetId: Id<"datasets">) => {
-    navigate(`/finetune/new?datasetId=${datasetId}`);
+  const handleStartFineTuning = (datasetId: Id<"datasets">, mode: "manual" | "auto") => {
+    if (mode === "manual") {
+      navigate(`/finetune/new?datasetId=${datasetId}`);
+    } else {
+      navigate(`/finetune/new?datasetId=${datasetId}&autoOptimize=true`);
+    }
+  };
+
+  const openConfigDialog = (datasetId: Id<"datasets">) => {
+    setConfigDatasetId(datasetId);
+  };
+
+  const handleApplyConfig = () => {
+    if (!configDatasetId) return;
+    
+    handleNormalize(configDatasetId, normalizeMode);
+    handleStartFineTuning(configDatasetId, finetuneMode);
+    setConfigDatasetId(null);
   };
 
   if (isLoading) {
@@ -280,18 +309,10 @@ export default function DatasetBrowser() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleNormalize(dataset._id)}
+                          onClick={() => openConfigDialog(dataset._id)}
                         >
                           <Sparkles className="h-4 w-4" />
-                          Normalize
-                        </Button>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => handleStartFineTuning(dataset._id)}
-                        >
-                          <Brain className="h-4 w-4" />
-                          Fine-tune
+                          Configure
                         </Button>
                       </div>
                     </CardContent>
@@ -302,6 +323,100 @@ export default function DatasetBrowser() {
           )}
         </motion.div>
       </div>
+
+      {/* Configuration Dialog */}
+      <Dialog open={!!configDatasetId} onOpenChange={() => setConfigDatasetId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Configure Normalization & Fine-tuning</DialogTitle>
+            <DialogDescription>
+              Choose between manual control or AI-powered automation
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Normalization Mode */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Normalization Mode</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Card
+                  className={`cursor-pointer transition-all ${
+                    normalizeMode === "manual" ? "border-primary ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setNormalizeMode("manual")}
+                >
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-2">Manual</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Basic cleanup: Remove duplicates, min 10 chars, no quality filter
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card
+                  className={`cursor-pointer transition-all ${
+                    normalizeMode === "auto" ? "border-primary ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setNormalizeMode("auto")}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <h4 className="font-semibold">AI-Powered</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Smart cleanup: Min 50 chars, quality ≥5.0, optimized for training
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Fine-tuning Mode */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Fine-tuning Mode</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Card
+                  className={`cursor-pointer transition-all ${
+                    finetuneMode === "manual" ? "border-primary ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setFinetuneMode("manual")}
+                >
+                  <CardContent className="pt-6">
+                    <h4 className="font-semibold mb-2">Manual</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Configure all parameters yourself in the fine-tuning wizard
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card
+                  className={`cursor-pointer transition-all ${
+                    finetuneMode === "auto" ? "border-primary ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => setFinetuneMode("auto")}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Brain className="h-4 w-4 text-primary" />
+                      <h4 className="font-semibold">AI-Optimized</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Auto-calculate learning rate, batch size, epochs, LoRA params
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" onClick={() => setConfigDatasetId(null)} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleApplyConfig} className="flex-1">
+                Apply & Start
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Preview Dialog */}
       <Dialog open={!!previewDatasetId} onOpenChange={() => setPreviewDatasetId(null)}>
