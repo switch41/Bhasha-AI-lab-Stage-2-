@@ -6,7 +6,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import "./index.css";
 import Landing from "./pages/Landing.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -19,59 +19,76 @@ import DatasetBrowser from "./pages/DatasetBrowser.tsx";
 import FinetuneJobsList from "./pages/FinetuneJobsList.tsx";
 import JobMonitoring from "./pages/JobMonitoring.tsx";
 import ResultsComparison from "./pages/ResultsComparison.tsx";
+import LLMConnections from "./pages/LLMConnections.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
-
-
-function RouteSyncer() {
-  const location = useLocation();
-  useEffect(() => {
-    window.parent.postMessage(
-      { type: "iframe-route-change", path: location.pathname },
-      "*",
-    );
-  }, [location.pathname]);
-
-  useEffect(() => {
-    function handleMessage(event: MessageEvent) {
-      if (event.data?.type === "navigate") {
-        if (event.data.direction === "back") window.history.back();
-        if (event.data.direction === "forward") window.history.forward();
-      }
-    }
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  return null;
-}
-
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Landing />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/content",
+    element: <ContentBrowser />,
+  },
+  {
+    path: "/content/new",
+    element: <ContentForm />,
+  },
+  {
+    path: "/content/:id",
+    element: <ContentForm />,
+  },
+  {
+    path: "/datasets",
+    element: <DatasetBrowser />,
+  },
+  {
+    path: "/datasets/create",
+    element: <DatasetForm />,
+  },
+  {
+    path: "/finetune",
+    element: <FinetuneJobsList />,
+  },
+  {
+    path: "/finetune/new",
+    element: <FinetuneForm />,
+  },
+  {
+    path: "/finetune/:id",
+    element: <JobMonitoring />,
+  },
+  {
+    path: "/results/:id",
+    element: <ResultsComparison />,
+  },
+  {
+    path: "/llm-connections",
+    element: <LLMConnections />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <VlyToolbar />
     <InstrumentationProvider>
       <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
-          <RouteSyncer />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/content" element={<ContentBrowser />} />
-            <Route path="/content/new" element={<ContentForm />} />
-            <Route path="/content/:id" element={<ContentForm />} />
-            <Route path="/datasets/create" element={<DatasetForm />} />
-            <Route path="/datasets" element={<DatasetBrowser />} />
-            <Route path="/finetune/new" element={<FinetuneForm />} />
-            <Route path="/finetune/:id" element={<JobMonitoring />} />
-            <Route path="/finetune" element={<FinetuneJobsList />} />
-            <Route path="/results/:id" element={<ResultsComparison />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router} />
         <Toaster />
       </ConvexAuthProvider>
     </InstrumentationProvider>

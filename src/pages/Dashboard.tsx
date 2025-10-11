@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Database, Sparkles, BarChart3, Plus, FileText, Brain, TrendingUp } from "lucide-react";
+import { Loader2, Database, Sparkles, BarChart3, Plus, FileText, Brain, TrendingUp, Plug } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
@@ -55,6 +55,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
+          className="space-y-8"
         >
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -106,29 +107,58 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <Card className="mb-8">
+          <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Get started with your AI training workflow</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button className="h-auto py-6 flex flex-col gap-2" onClick={() => navigate("/content/new")}>
-                  <Plus className="h-6 w-6" />
-                  <span className="font-semibold">Add Content</span>
-                  <span className="text-xs text-muted-foreground">Contribute new data</span>
-                </Button>
-                <Button className="h-auto py-6 flex flex-col gap-2" variant="outline" onClick={() => navigate("/datasets/create")}>
-                  <Database className="h-6 w-6" />
-                  <span className="font-semibold">Create Dataset</span>
-                  <span className="text-xs text-muted-foreground">Build training set</span>
-                </Button>
-                <Button className="h-auto py-6 flex flex-col gap-2" variant="outline" onClick={() => navigate("/finetune/new")}>
-                  <Sparkles className="h-6 w-6" />
-                  <span className="font-semibold">Start Fine-tuning</span>
-                  <span className="text-xs text-muted-foreground">Train your model</span>
-                </Button>
-              </div>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                variant="outline"
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => navigate("/content/new")}
+              >
+                <Plus className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">Add Content</div>
+                  <div className="text-xs text-muted-foreground">Contribute new data</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => navigate("/datasets/create")}
+              >
+                <Database className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">Create Dataset</div>
+                  <div className="text-xs text-muted-foreground">Build training set</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => navigate("/finetune/new")}
+              >
+                <Sparkles className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">Start Fine-tuning</div>
+                  <div className="text-xs text-muted-foreground">Train your model</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => navigate("/llm-connections")}
+              >
+                <Plug className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">LLM Connections</div>
+                  <div className="text-xs text-muted-foreground">Manage your LLMs</div>
+                </div>
+              </Button>
             </CardContent>
           </Card>
 

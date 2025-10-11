@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, ArrowLeft, Brain, Zap } from "lucide-react";
+import { Loader2, Sparkles, ArrowLeft, Brain, Zap, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -19,11 +19,13 @@ export default function FinetuneForm() {
   const navigate = useNavigate();
   
   const datasets = useQuery(api.datasets.list, {});
+  const llmConnections = useQuery(api.llmConnections.list, {});
   const createJob = useMutation(api.finetune.create);
 
   const [selectedDatasetId, setSelectedDatasetId] = useState<Id<"datasets"> | null>(null);
   const [provider, setProvider] = useState("openai");
   const [model, setModel] = useState("gpt-3.5-turbo");
+  const [selectedConnectionId, setSelectedConnectionId] = useState<Id<"llm_connections"> | null>(null);
   
   const recommendations = useQuery(
     api.finetune.recommend,
@@ -68,6 +70,11 @@ export default function FinetuneForm() {
       return;
     }
 
+    if (provider === "custom" && !selectedConnectionId) {
+      toast.error("Please select an LLM connection");
+      return;
+    }
+
     setIsCreating(true);
 
     try {
@@ -75,7 +82,8 @@ export default function FinetuneForm() {
         datasetId: selectedDatasetId,
         parameters,
         provider,
-        model,
+        model: provider === "custom" ? "custom" : model,
+        connectionId: provider === "custom" && selectedConnectionId ? selectedConnectionId : undefined,
       });
       toast.success("Fine-tuning job created successfully!");
       navigate(`/finetune/${jobId}`);
@@ -148,23 +156,55 @@ export default function FinetuneForm() {
                         <SelectItem value="openai">OpenAI</SelectItem>
                         <SelectItem value="anthropic">Anthropic</SelectItem>
                         <SelectItem value="huggingface">Hugging Face</SelectItem>
+                        <SelectItem value="custom">Custom LLM</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="model">Base Model *</Label>
-                    <Select value={model} onValueChange={setModel}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select model" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                        <SelectItem value="gpt-4">GPT-4</SelectItem>
-                        <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {provider === "custom" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="connection">LLM Connection *</Label>
+                      <div className="flex gap-2">
+                        <Select
+                          value={selectedConnectionId ?? undefined}
+                          onValueChange={(value) => setSelectedConnectionId(value as Id<"llm_connections">)}
+                        >
+                          <SelectTrigger className="flex-1">
+                            <SelectValue placeholder="Select connection" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {llmConnections?.filter(c => c.isActive).map((conn) => (
+                              <SelectItem key={conn._id} value={conn._id}>
+                                {conn.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => navigate("/llm-connections")}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="model">Base Model *</Label>
+                      <Select value={model} onValueChange={setModel}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                          <SelectItem value="gpt-4">GPT-4</SelectItem>
+                          <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
