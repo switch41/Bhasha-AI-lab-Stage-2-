@@ -27,6 +27,9 @@ export default function DatasetBrowser() {
   const [configDatasetId, setConfigDatasetId] = useState<Id<"datasets"> | null>(null);
   const [normalizeMode, setNormalizeMode] = useState<"manual" | "auto">("manual");
   const [finetuneMode, setFinetuneMode] = useState<"manual" | "auto">("manual");
+  const [selectedProvider, setSelectedProvider] = useState<"openai" | "custom">("openai");
+  const [selectedConnection, setSelectedConnection] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("gpt-3.5-turbo");
 
   const datasets = useQuery(api.datasets.list, {
     language: languageFilter || undefined,
@@ -41,6 +44,7 @@ export default function DatasetBrowser() {
   );
 
   const normalizeDataset = useMutation(api.datasets.normalize);
+  const llmConnections = useQuery(api.llmConnections.list);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -86,7 +90,21 @@ export default function DatasetBrowser() {
     if (mode === "manual") {
       navigate(`/finetune/new?datasetId=${datasetId}`);
     } else {
-      navigate(`/finetune/new?datasetId=${datasetId}&autoOptimize=true`);
+      // Build query params for AI-optimized mode
+      const params = new URLSearchParams({
+        datasetId,
+        autoOptimize: "true",
+      });
+      
+      if (selectedProvider === "custom" && selectedConnection) {
+        params.append("provider", "custom");
+        params.append("connectionId", selectedConnection);
+      } else {
+        params.append("provider", "openai");
+        params.append("model", selectedModel);
+      }
+      
+      navigate(`/finetune/new?${params.toString()}`);
     }
   };
 
@@ -96,6 +114,12 @@ export default function DatasetBrowser() {
 
   const handleApplyConfig = () => {
     if (!configDatasetId) return;
+    
+    // Validate custom LLM selection if needed
+    if (finetuneMode === "auto" && selectedProvider === "custom" && !selectedConnection) {
+      toast.error("Please select a custom LLM connection");
+      return;
+    }
     
     handleNormalize(configDatasetId, normalizeMode);
     handleStartFineTuning(configDatasetId, finetuneMode);
@@ -404,6 +428,80 @@ export default function DatasetBrowser() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Base Model Selection (only for AI-Optimized mode) */}
+              {finetuneMode === "auto" && (
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <Label>Provider</Label>
+                    <Select value={selectedProvider} onValueChange={(value: any) => setSelectedProvider(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                        <SelectItem value="custom">Custom LLM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedProvider === "openai" && (
+                    <div className="space-y-2">
+                      <Label>Base Model</Label>
+                      <Select value={selectedModel} onValueChange={setSelectedModel}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                          <SelectItem value="gpt-4">GPT-4</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {selectedProvider === "custom" && (
+                    <div className="space-y-2">
+                      <Label>Custom LLM Connection</Label>
+                      <Select value={selectedConnection} onValueChange={setSelectedConnection}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select connection" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {llmConnections && llmConnections.length > 0 ? (
+                            llmConnections
+                              .filter((conn) => conn.isActive)
+                              .map((conn) => (
+                                <SelectItem key={conn._id} value={conn._id}>
+                                  {conn.name}
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              No active connections
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      {(!llmConnections || llmConnections.length === 0) && (
+                        <p className="text-xs text-muted-foreground">
+                          No custom LLM connections found.{" "}
+                          <Button
+                            variant="link"
+                            className="h-auto p-0 text-xs"
+                            onClick={() => {
+                              setConfigDatasetId(null);
+                              navigate("/llm-connections");
+                            }}
+                          >
+                            Add one now
+                          </Button>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">
