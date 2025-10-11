@@ -23,6 +23,72 @@ function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 3);
 }
 
+// Enhanced validation helper
+function validateContentData(args: {
+  text: string;
+  language: string;
+  contentType: string;
+  region?: string;
+  category?: string;
+  source?: string;
+  dialect?: string;
+  culturalContext?: string;
+}): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  // Text validation
+  if (!args.text || args.text.trim().length === 0) {
+    errors.push("Text content cannot be empty");
+  } else if (args.text.trim().length < 10) {
+    errors.push("Text content must be at least 10 characters long");
+  } else if (args.text.trim().length > 10000) {
+    errors.push("Text content cannot exceed 10,000 characters");
+  }
+  
+  // Language validation
+  const validLanguages = [
+    "hindi", "bengali", "tamil", "telugu", "marathi", 
+    "gujarati", "kannada", "malayalam", "punjabi", "odia"
+  ];
+  if (!validLanguages.includes(args.language.toLowerCase())) {
+    errors.push(`Invalid language. Must be one of: ${validLanguages.join(", ")}`);
+  }
+  
+  // Content type validation
+  const validTypes = ["text", "proverb", "narrative"];
+  if (!validTypes.includes(args.contentType)) {
+    errors.push(`Invalid content type. Must be one of: ${validTypes.join(", ")}`);
+  }
+  
+  // Optional field length validation
+  if (args.region && args.region.length > 100) {
+    errors.push("Region name cannot exceed 100 characters");
+  }
+  if (args.category && args.category.length > 100) {
+    errors.push("Category name cannot exceed 100 characters");
+  }
+  if (args.source && args.source.length > 200) {
+    errors.push("Source cannot exceed 200 characters");
+  }
+  if (args.dialect && args.dialect.length > 100) {
+    errors.push("Dialect name cannot exceed 100 characters");
+  }
+  if (args.culturalContext && args.culturalContext.length > 1000) {
+    errors.push("Cultural context cannot exceed 1,000 characters");
+  }
+  
+  // Token count validation
+  const tokenCount = estimateTokenCount(args.text);
+  if (tokenCount > 2000) {
+    errors.push(`Text is too long (estimated ${tokenCount} tokens). Maximum is 2000 tokens.`);
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 // Create content entry
 export const create = mutation({
   args: {
@@ -42,6 +108,12 @@ export const create = mutation({
     if (!user) throw new Error("Not authenticated");
 
     const { enableAIAnalysis, ...contentData } = args;
+
+    // Enhanced data validation
+    const validation = validateContentData(contentData);
+    if (!validation.valid) {
+      throw new Error(`Validation failed: ${validation.errors.join("; ")}`);
+    }
 
     // Auto-deduplication: Check for similar content
     const existingContent = await ctx.db

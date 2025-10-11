@@ -48,9 +48,47 @@ export const recommend = query({
     const timeMultiplier = avgTokens > 200 ? 1.5 : avgTokens > 100 ? 1.2 : 1.0;
     const estimatedTimeMinutes = Math.ceil((datasetSize * epochs) / 1000 * 60 * timeMultiplier);
 
-    // LoRA configuration based on dataset characteristics
-    const loraRank = datasetSize > 5000 ? 16 : 8;
-    const loraAlpha = loraRank * 2;
+    // Enhanced LoRA configuration based on dataset characteristics
+    // Consider dataset size, token complexity, and variance
+    let loraRank: number;
+    let loraAlpha: number;
+    
+    // Base rank on dataset size and complexity
+    if (datasetSize < 500) {
+      loraRank = 4; // Very small dataset - minimal parameters
+    } else if (datasetSize < 2000) {
+      loraRank = 8; // Small dataset
+    } else if (datasetSize < 5000) {
+      loraRank = 16; // Medium dataset
+    } else if (datasetSize < 10000) {
+      loraRank = 32; // Large dataset
+    } else {
+      loraRank = 64; // Very large dataset
+    }
+    
+    // Adjust rank based on token complexity
+    if (tokenDist) {
+      const tokenComplexity = stdDev / avgTokens; // Coefficient of variation
+      
+      // High variance suggests more complex patterns - increase rank
+      if (tokenComplexity > 0.5 && loraRank < 32) {
+        loraRank = Math.min(loraRank * 2, 32);
+      }
+      
+      // Very long sequences may need more capacity
+      if (maxTokens > 500 && loraRank < 32) {
+        loraRank = Math.min(loraRank * 1.5, 32);
+      }
+    }
+    
+    // Alpha is typically 2x rank for balanced learning
+    // But can be adjusted based on learning objectives
+    loraAlpha = loraRank * 2;
+    
+    // For very small datasets, use higher alpha for more aggressive learning
+    if (datasetSize < 500) {
+      loraAlpha = loraRank * 4;
+    }
 
     return {
       parameters: {
@@ -64,7 +102,7 @@ export const recommend = query({
         learningRate: `Based on dataset size of ${datasetSize}, using ${learningRate} to balance convergence speed and stability.`,
         batchSize: `Optimal batch size of ${batchSize} for ${datasetSize} samples${stdDev > avgTokens * 0.5 ? ' (reduced due to high token variance)' : ''} to maximize GPU utilization.`,
         epochs: `${epochs} epochs recommended for average token length of ${avgTokens} to prevent overfitting.`,
-        lora: `LoRA rank ${loraRank} and alpha ${loraAlpha} provide efficient fine-tuning${datasetSize > 5000 ? ' with increased capacity for larger dataset' : ' with minimal parameter overhead'}.`,
+        lora: `LoRA rank ${loraRank} and alpha ${loraAlpha} optimized for dataset size (${datasetSize} samples)${tokenDist ? `, token complexity (CV: ${(stdDev/avgTokens).toFixed(2)}), and sequence length (max: ${maxTokens})` : ''}. ${datasetSize < 500 ? 'Higher alpha/rank ratio for aggressive learning on small dataset.' : datasetSize > 5000 ? 'Increased capacity for large, complex dataset.' : 'Balanced configuration for efficient fine-tuning.'}`,
         tokenization: tokenDist ? `Token analysis: avg=${tokenDist.avg}, median=${tokenDist.median}, range=[${tokenDist.min}-${tokenDist.max}], stdDev=${tokenDist.stdDev}. Distribution: ${tokenDist.distribution.short} short, ${tokenDist.distribution.medium} medium, ${tokenDist.distribution.long} long sequences.` : undefined,
       },
       estimatedCost: Math.round(estimatedCost * 100) / 100,
