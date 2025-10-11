@@ -211,51 +211,73 @@ export default function DatasetForm() {
 
                     {formData.autoNormalize && (
                       <div className="space-y-4 pt-4 border-t">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="removeDuplicates" className="text-sm">Remove Duplicates</Label>
-                          <input
-                            type="checkbox"
-                            id="removeDuplicates"
-                            checked={formData.removeDuplicates}
-                            onChange={(e) => setFormData({ ...formData, removeDuplicates: e.target.checked })}
-                            className="h-4 w-4 cursor-pointer"
-                          />
+                        <div className="space-y-3">
+                          <Label className="text-sm font-semibold">Normalization Mode</Label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Card
+                              className={`cursor-pointer transition-all ${
+                                formData.minTextLength === 10 && formData.normMinQuality === 0
+                                  ? "border-primary ring-2 ring-primary"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setFormData({
+                                  ...formData,
+                                  minTextLength: 10,
+                                  maxTextLength: 10000,
+                                  normMinQuality: 0,
+                                  removeDuplicates: true,
+                                })
+                              }
+                            >
+                              <CardContent className="pt-4 pb-4">
+                                <h4 className="font-semibold text-sm mb-1">Manual</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  Basic cleanup: Remove duplicates, min 10 chars
+                                </p>
+                              </CardContent>
+                            </Card>
+                            <Card
+                              className={`cursor-pointer transition-all ${
+                                formData.minTextLength === 50 && formData.normMinQuality === 5.0
+                                  ? "border-primary ring-2 ring-primary"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setFormData({
+                                  ...formData,
+                                  minTextLength: 50,
+                                  maxTextLength: 10000,
+                                  normMinQuality: 5.0,
+                                  removeDuplicates: true,
+                                })
+                              }
+                            >
+                              <CardContent className="pt-4 pb-4">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Sparkles className="h-3 w-3 text-primary" />
+                                  <h4 className="font-semibold text-sm">AI-Powered</h4>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Smart cleanup: Min 50 chars, quality ≥5.0
+                                </p>
+                              </CardContent>
+                            </Card>
+                          </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="minTextLength" className="text-sm">Min Text Length</Label>
-                            <Input
-                              id="minTextLength"
-                              type="number"
-                              min="0"
-                              value={formData.minTextLength}
-                              onChange={(e) => setFormData({ ...formData, minTextLength: parseInt(e.target.value) || 0 })}
-                            />
+                        <div className="space-y-2 pt-2">
+                          <Label className="text-xs text-muted-foreground">Current Settings:</Label>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Min Length:</span>
+                              <span className="font-medium">{formData.minTextLength}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Min Quality:</span>
+                              <span className="font-medium">{formData.normMinQuality}</span>
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="maxTextLength" className="text-sm">Max Text Length</Label>
-                            <Input
-                              id="maxTextLength"
-                              type="number"
-                              min="0"
-                              value={formData.maxTextLength}
-                              onChange={(e) => setFormData({ ...formData, maxTextLength: parseInt(e.target.value) || 10000 })}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="normMinQuality" className="text-sm">Normalization Min Quality</Label>
-                          <Input
-                            id="normMinQuality"
-                            type="number"
-                            min="0"
-                            max="10"
-                            step="0.1"
-                            value={formData.normMinQuality}
-                            onChange={(e) => setFormData({ ...formData, normMinQuality: parseFloat(e.target.value) || 0 })}
-                          />
                         </div>
                       </div>
                     )}
@@ -280,65 +302,130 @@ export default function DatasetForm() {
                       />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Automatically start fine-tuning with AI-optimized parameters after dataset creation
+                      Automatically start fine-tuning after dataset creation
                     </p>
 
                     {formData.autoFinetune && (
                       <div className="space-y-4 pt-4 border-t">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="provider">Provider</Label>
-                            <Select
-                              value={formData.provider}
-                              onValueChange={(value) => setFormData({ ...formData, provider: value })}
+                        <div className="space-y-3">
+                          <Label className="text-sm font-semibold">Fine-tuning Mode</Label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Card
+                              className={`cursor-pointer transition-all ${
+                                formData.provider === "manual"
+                                  ? "border-primary ring-2 ring-primary"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setFormData({
+                                  ...formData,
+                                  provider: "manual",
+                                })
+                              }
                             >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="openai">OpenAI</SelectItem>
-                                <SelectItem value="custom">Custom LLM</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              <CardContent className="pt-4 pb-4">
+                                <h4 className="font-semibold text-sm mb-1">Manual</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  Configure parameters in fine-tuning wizard
+                                </p>
+                              </CardContent>
+                            </Card>
+                            <Card
+                              className={`cursor-pointer transition-all ${
+                                formData.provider !== "manual"
+                                  ? "border-primary ring-2 ring-primary"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setFormData({
+                                  ...formData,
+                                  provider: "openai",
+                                })
+                              }
+                            >
+                              <CardContent className="pt-4 pb-4">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Sparkles className="h-3 w-3 text-primary" />
+                                  <h4 className="font-semibold text-sm">AI-Optimized</h4>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Auto-calculate optimal parameters
+                                </p>
+                              </CardContent>
+                            </Card>
                           </div>
-
-                          {formData.provider === "custom" ? (
-                            <div className="space-y-2">
-                              <Label htmlFor="connection">LLM Connection</Label>
-                              <Select
-                                value={formData.connectionId}
-                                onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select connection" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {llmConnections?.filter(c => c.isActive).map((conn) => (
-                                    <SelectItem key={conn._id} value={conn._id}>
-                                      {conn.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <Label htmlFor="model">Model</Label>
-                              <Select
-                                value={formData.model}
-                                onValueChange={(value) => setFormData({ ...formData, model: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                                  <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
                         </div>
+
+                        {formData.provider !== "manual" && (
+                          <div className="space-y-4 pt-2">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="provider">Provider</Label>
+                                <Select
+                                  value={formData.provider}
+                                  onValueChange={(value) => setFormData({ ...formData, provider: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="openai">OpenAI</SelectItem>
+                                    <SelectItem value="custom">Custom LLM</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {formData.provider === "custom" ? (
+                                <div className="space-y-2">
+                                  <Label htmlFor="connection">LLM Connection</Label>
+                                  <Select
+                                    value={formData.connectionId}
+                                    onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select connection" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {llmConnections?.filter(c => c.isActive).map((conn) => (
+                                        <SelectItem key={conn._id} value={conn._id}>
+                                          {conn.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                                    <p className="text-xs text-muted-foreground">
+                                      No active connections.{" "}
+                                      <Button
+                                        variant="link"
+                                        className="h-auto p-0 text-xs"
+                                        onClick={() => navigate("/llm-connections")}
+                                      >
+                                        Add one now
+                                      </Button>
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="space-y-2">
+                                  <Label htmlFor="model">Base Model</Label>
+                                  <Select
+                                    value={formData.model}
+                                    onValueChange={(value) => setFormData({ ...formData, model: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                                      <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
