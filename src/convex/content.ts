@@ -3,6 +3,26 @@ import { mutation, query } from "./_generated/server";
 import { getCurrentUser } from "./users";
 import { internal } from "./_generated/api";
 
+// Helper function to calculate similarity between texts
+function calculateSimilarity(text1: string, text2: string): number {
+  const tokens1 = text1.toLowerCase().split(/\s+/);
+  const tokens2 = text2.toLowerCase().split(/\s+/);
+  
+  const set1 = new Set(tokens1);
+  const set2 = new Set(tokens2);
+  
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  
+  return union.size > 0 ? intersection.size / union.size : 0;
+}
+
+// Helper function to estimate token count
+function estimateTokenCount(text: string): number {
+  // Rough estimate: 1 token ≈ 4 characters for English, 2-3 for Indian languages
+  return Math.ceil(text.length / 3);
+}
+
 // Create content entry
 export const create = mutation({
   args: {
@@ -22,6 +42,21 @@ export const create = mutation({
     if (!user) throw new Error("Not authenticated");
 
     const { enableAIAnalysis, ...contentData } = args;
+
+    // Auto-deduplication: Check for similar content
+    const existingContent = await ctx.db
+      .query("content")
+      .withIndex("by_language", (q) => q.eq("language", args.language))
+      .collect();
+
+    for (const existing of existingContent) {
+      const similarity = calculateSimilarity(args.text, existing.text);
+      if (similarity > 0.85) {
+        throw new Error(
+          `Duplicate content detected! This text is ${Math.round(similarity * 100)}% similar to existing content (ID: ${existing._id}). Please add unique content.`
+        );
+      }
+    }
 
     // Create content with initial quality score
     const contentId = await ctx.db.insert("content", {

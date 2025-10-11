@@ -64,6 +64,21 @@ const schema = defineSchema(
         avgTokens: v.number(),
         regions: v.array(v.string()),
         categories: v.array(v.string()),
+        tokenDistribution: v.optional(v.object({
+          avg: v.number(),
+          median: v.number(),
+          min: v.number(),
+          max: v.number(),
+          stdDev: v.number(),
+          p25: v.number(),
+          p75: v.number(),
+          p95: v.number(),
+          distribution: v.object({
+            short: v.number(),
+            medium: v.number(),
+            long: v.number(),
+          }),
+        })),
       }),
       status: v.string(),
     }).index("by_language", ["language"])

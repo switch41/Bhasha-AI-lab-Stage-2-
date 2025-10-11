@@ -15,19 +15,27 @@ export const recommend = query({
     if (!dataset) throw new Error("Dataset not found");
 
     const datasetSize = dataset.size;
-    const avgTokens = dataset.metadata.avgTokens || 100;
+    const tokenDist = dataset.metadata.tokenDistribution;
+    const avgTokens = tokenDist?.avg || dataset.metadata.avgTokens || 100;
+    const stdDev = tokenDist?.stdDev || 0;
+    const maxTokens = tokenDist?.max || avgTokens * 2;
 
-    // Calculate learning rate
+    // Enhanced learning rate calculation based on token distribution
     const learningRate = datasetSize < 1000 ? 5e-5 :
                         datasetSize < 5000 ? 3e-5 :
                         datasetSize < 10000 ? 2e-5 : 1e-5;
 
-    // Calculate batch size
-    const batchSize = datasetSize < 1000 ? 8 :
-                     datasetSize < 5000 ? 16 :
-                     datasetSize < 10000 ? 32 : 64;
+    // Adjust batch size based on token length variance
+    let batchSize = datasetSize < 1000 ? 8 :
+                   datasetSize < 5000 ? 16 :
+                   datasetSize < 10000 ? 32 : 64;
+    
+    // Reduce batch size for high variance or long sequences
+    if (stdDev > avgTokens * 0.5 || maxTokens > 500) {
+      batchSize = Math.max(4, Math.floor(batchSize / 2));
+    }
 
-    // Calculate epochs
+    // Calculate epochs based on token distribution
     const epochs = avgTokens < 50 ? 5 :
                   avgTokens < 100 ? 4 :
                   avgTokens < 200 ? 3 : 2;
@@ -36,12 +44,13 @@ export const recommend = query({
     const totalTokens = datasetSize * avgTokens * epochs;
     const estimatedCost = (totalTokens / 1000) * 0.008;
 
-    // Estimate time (rough estimate: 1000 samples per hour)
-    const estimatedTimeMinutes = Math.ceil((datasetSize * epochs) / 1000 * 60);
+    // Estimate time (rough estimate: 1000 samples per hour, adjusted for token length)
+    const timeMultiplier = avgTokens > 200 ? 1.5 : avgTokens > 100 ? 1.2 : 1.0;
+    const estimatedTimeMinutes = Math.ceil((datasetSize * epochs) / 1000 * 60 * timeMultiplier);
 
-    // LoRA configuration
-    const loraRank = 8;
-    const loraAlpha = 16;
+    // LoRA configuration based on dataset characteristics
+    const loraRank = datasetSize > 5000 ? 16 : 8;
+    const loraAlpha = loraRank * 2;
 
     return {
       parameters: {
@@ -53,16 +62,18 @@ export const recommend = query({
       },
       reasoning: {
         learningRate: `Based on dataset size of ${datasetSize}, using ${learningRate} to balance convergence speed and stability.`,
-        batchSize: `Optimal batch size of ${batchSize} for ${datasetSize} samples to maximize GPU utilization.`,
+        batchSize: `Optimal batch size of ${batchSize} for ${datasetSize} samples${stdDev > avgTokens * 0.5 ? ' (reduced due to high token variance)' : ''} to maximize GPU utilization.`,
         epochs: `${epochs} epochs recommended for average token length of ${avgTokens} to prevent overfitting.`,
-        lora: `LoRA rank ${loraRank} and alpha ${loraAlpha} provide efficient fine-tuning with minimal parameter overhead.`,
+        lora: `LoRA rank ${loraRank} and alpha ${loraAlpha} provide efficient fine-tuning${datasetSize > 5000 ? ' with increased capacity for larger dataset' : ' with minimal parameter overhead'}.`,
+        tokenization: tokenDist ? `Token analysis: avg=${tokenDist.avg}, median=${tokenDist.median}, range=[${tokenDist.min}-${tokenDist.max}], stdDev=${tokenDist.stdDev}. Distribution: ${tokenDist.distribution.short} short, ${tokenDist.distribution.medium} medium, ${tokenDist.distribution.long} long sequences.` : undefined,
       },
       estimatedCost: Math.round(estimatedCost * 100) / 100,
       estimatedTimeMinutes,
-      confidence: 0.85,
+      confidence: tokenDist ? 0.90 : 0.85,
       datasetAnalysis: {
         size: datasetSize,
         avgTokens,
+        tokenDistribution: tokenDist,
         language: dataset.language,
         qualityScore: dataset.qualityScore,
       },

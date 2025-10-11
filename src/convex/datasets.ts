@@ -2,6 +2,47 @@ import { v } from "convex/values";
 import { mutation, query, internalQuery } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
+// Helper function to analyze token distribution
+function analyzeTokenDistribution(content: any[]) {
+  const tokenCounts = content.map(c => Math.ceil(c.text.length / 3));
+  
+  const sorted = [...tokenCounts].sort((a, b) => a - b);
+  const sum = tokenCounts.reduce((a, b) => a + b, 0);
+  const avg = sum / tokenCounts.length;
+  
+  const median = sorted.length % 2 === 0
+    ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+    : sorted[Math.floor(sorted.length / 2)];
+  
+  const min = Math.min(...tokenCounts);
+  const max = Math.max(...tokenCounts);
+  
+  // Calculate standard deviation
+  const variance = tokenCounts.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / tokenCounts.length;
+  const stdDev = Math.sqrt(variance);
+  
+  // Calculate percentiles
+  const p25 = sorted[Math.floor(sorted.length * 0.25)];
+  const p75 = sorted[Math.floor(sorted.length * 0.75)];
+  const p95 = sorted[Math.floor(sorted.length * 0.95)];
+  
+  return {
+    avg: Math.round(avg),
+    median: Math.round(median),
+    min,
+    max,
+    stdDev: Math.round(stdDev),
+    p25,
+    p75,
+    p95,
+    distribution: {
+      short: tokenCounts.filter(t => t < 50).length,
+      medium: tokenCounts.filter(t => t >= 50 && t < 200).length,
+      long: tokenCounts.filter(t => t >= 200).length,
+    },
+  };
+}
+
 // Create dataset from content
 export const create = mutation({
   args: {
@@ -32,22 +73,42 @@ export const create = mutation({
       content = content.filter((c) => args.contentIds!.includes(c._id));
     }
 
-    const entryIds = content.map((c) => c._id);
-    const avgQuality = content.length > 0
-      ? content.reduce((sum, c) => sum + c.qualityScore, 0) / content.length
+    // Auto-deduplication within dataset
+    const uniqueContent: any[] = [];
+    const seenTexts = new Set<string>();
+    
+    for (const item of content) {
+      const normalizedText = item.text.toLowerCase().trim();
+      if (!seenTexts.has(normalizedText)) {
+        seenTexts.add(normalizedText);
+        uniqueContent.push(item);
+      }
+    }
+
+    if (uniqueContent.length < content.length) {
+      console.log(`Removed ${content.length - uniqueContent.length} duplicate entries from dataset`);
+    }
+
+    const entryIds = uniqueContent.map((c) => c._id);
+    const avgQuality = uniqueContent.length > 0
+      ? uniqueContent.reduce((sum, c) => sum + c.qualityScore, 0) / uniqueContent.length
       : 0;
+
+    // Perform tokenization analysis
+    const tokenAnalysis = analyzeTokenDistribution(uniqueContent);
 
     const datasetId = await ctx.db.insert("datasets", {
       name: args.name,
       language: args.language,
       contentType: args.contentType || "mixed",
-      size: content.length,
+      size: uniqueContent.length,
       entryIds,
       qualityScore: avgQuality,
       metadata: {
-        avgTokens: Math.floor(content.reduce((sum, c) => sum + c.text.length / 4, 0) / content.length),
-        regions: [...new Set(content.map((c) => c.region).filter((r): r is string => Boolean(r)))],
-        categories: [...new Set(content.map((c) => c.category).filter((cat): cat is string => Boolean(cat)))],
+        avgTokens: tokenAnalysis.avg,
+        regions: [...new Set(uniqueContent.map((c) => c.region).filter((r): r is string => Boolean(r)))],
+        categories: [...new Set(uniqueContent.map((c) => c.category).filter((cat): cat is string => Boolean(cat)))],
+        tokenDistribution: tokenAnalysis,
       },
       status: "ready",
       userId: user._id,
