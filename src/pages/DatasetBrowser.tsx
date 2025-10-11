@@ -1,12 +1,12 @@
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Database, Download, Eye, Filter, ArrowLeft, Link as LinkIcon, Zap } from "lucide-react";
+import { Loader2, Database, Download, Eye, Filter, ArrowLeft, Sparkles, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -32,12 +32,12 @@ export default function DatasetBrowser() {
     minSize: minSize > 0 ? minSize : undefined,
   });
 
-  const llmConnections = useQuery(api.llmConnections.list, {});
-
   const previewData = useQuery(
     api.datasets.preview,
     previewDatasetId ? { id: previewDatasetId, limit: 10 } : "skip"
   );
+
+  const normalizeDataset = useMutation(api.datasets.normalize);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -49,6 +49,28 @@ export default function DatasetBrowser() {
     toast.info("Preparing dataset export...");
     // In a real implementation, this would trigger the export and download
     toast.success("Dataset export started! Download will begin shortly.");
+  };
+
+  const handleNormalize = async (datasetId: Id<"datasets">) => {
+    try {
+      toast.info("Normalizing dataset...");
+      const result = await normalizeDataset({
+        id: datasetId,
+        options: {
+          removeDuplicates: true,
+          minTextLength: 10,
+          minQualityScore: 0,
+        },
+      });
+      toast.success(`Dataset normalized! Removed ${result.removed} entries.`);
+    } catch (error) {
+      toast.error("Failed to normalize dataset");
+      console.error(error);
+    }
+  };
+
+  const handleStartFineTuning = (datasetId: Id<"datasets">) => {
+    navigate(`/finetune/new?datasetId=${datasetId}`);
   };
 
   if (isLoading) {
@@ -65,9 +87,6 @@ export default function DatasetBrowser() {
     ? datasets.reduce((sum, d) => sum + d.qualityScore, 0) / datasets.length
     : 0;
 
-  const activeLLMConnections = llmConnections?.filter(c => c.isActive).length || 0;
-  const totalLLMConnections = llmConnections?.length || 0;
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -79,20 +98,10 @@ export default function DatasetBrowser() {
             </Button>
             <h1 className="text-2xl font-bold tracking-tight">Dataset Browser</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate("/llm-connections")}>
-              <LinkIcon className="h-4 w-4" />
-              LLM Connections
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/external-import")}>
-              <Database className="h-4 w-4" />
-              Import Data
-            </Button>
-            <Button onClick={() => navigate("/datasets/create")}>
-              <Database className="h-4 w-4" />
-              Create Dataset
-            </Button>
-          </div>
+          <Button onClick={() => navigate("/datasets/create")}>
+            <Database className="h-4 w-4" />
+            Create Dataset
+          </Button>
         </div>
       </header>
 
@@ -102,43 +111,6 @@ export default function DatasetBrowser() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Data Source Connection Status */}
-          <Card className="mb-6 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <LinkIcon className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium">LLM Connections</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activeLLMConnections} active / {totalLLMConnections} total
-                      </p>
-                    </div>
-                  </div>
-                  <div className="h-8 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium">Auto Fine-tuning</p>
-                      <p className="text-xs text-muted-foreground">
-                        Available for new datasets
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => navigate("/llm-connections")}>
-                    Manage Connections
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => navigate("/external-import")}>
-                    Import External Data
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Card>
@@ -288,11 +260,10 @@ export default function DatasetBrowser() {
                           <span className="font-medium">{dataset.metadata.avgTokens}</span>
                         </div>
                       </div>
-                      <div className="flex gap-2 pt-4">
+                      <div className="grid grid-cols-2 gap-2 pt-4">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
                           onClick={() => setPreviewDatasetId(dataset._id)}
                         >
                           <Eye className="h-4 w-4" />
@@ -301,11 +272,26 @@ export default function DatasetBrowser() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
                           onClick={() => handleExport(dataset._id)}
                         >
                           <Download className="h-4 w-4" />
                           Export
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleNormalize(dataset._id)}
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          Normalize
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleStartFineTuning(dataset._id)}
+                        >
+                          <Brain className="h-4 w-4" />
+                          Fine-tune
                         </Button>
                       </div>
                     </CardContent>

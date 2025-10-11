@@ -405,8 +405,8 @@ export const createDatasetFromPipeline = internalMutation({
       qualityScore: avgQuality,
       metadata: {
         avgTokens,
-        regions: [...new Set(validContent.map(c => c!.region).filter(Boolean))],
-        categories: [...new Set(validContent.map(c => c!.category).filter(Boolean))],
+        regions: [...new Set(validContent.map(c => c!.region).filter((r): r is string => Boolean(r)))],
+        categories: [...new Set(validContent.map(c => c!.category).filter((cat): cat is string => Boolean(cat)))],
         tokenDistribution: {
           avg: avgTokens,
           median: avgTokens,
