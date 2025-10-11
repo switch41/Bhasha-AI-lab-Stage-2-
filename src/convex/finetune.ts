@@ -119,6 +119,75 @@ export const recommend = query({
   },
 });
 
+// AI-optimized data split recommendation
+export const recommendSplit = query({
+  args: {
+    datasetId: v.id("datasets"),
+  },
+  handler: async (ctx, args) => {
+    const dataset = await ctx.db.get(args.datasetId);
+    if (!dataset) throw new Error("Dataset not found");
+
+    const datasetSize = dataset.size;
+    
+    // AI-optimized split ratios based on dataset size
+    let trainRatio: number;
+    let validationRatio: number;
+    let testRatio: number;
+    
+    if (datasetSize < 100) {
+      // Very small dataset: maximize training data
+      trainRatio = 0.85;
+      validationRatio = 0.10;
+      testRatio = 0.05;
+    } else if (datasetSize < 500) {
+      // Small dataset: standard split
+      trainRatio = 0.80;
+      validationRatio = 0.10;
+      testRatio = 0.10;
+    } else if (datasetSize < 2000) {
+      // Medium dataset: balanced split
+      trainRatio = 0.75;
+      validationRatio = 0.15;
+      testRatio = 0.10;
+    } else if (datasetSize < 10000) {
+      // Large dataset: more validation data
+      trainRatio = 0.70;
+      validationRatio = 0.20;
+      testRatio = 0.10;
+    } else {
+      // Very large dataset: comprehensive validation
+      trainRatio = 0.70;
+      validationRatio = 0.20;
+      testRatio = 0.10;
+    }
+    
+    const trainSize = Math.floor(datasetSize * trainRatio);
+    const validationSize = Math.floor(datasetSize * validationRatio);
+    const testSize = datasetSize - trainSize - validationSize;
+    
+    return {
+      split: {
+        train: trainRatio,
+        validation: validationRatio,
+        test: testRatio,
+      },
+      sizes: {
+        train: trainSize,
+        validation: validationSize,
+        test: testSize,
+      },
+      reasoning: {
+        overall: `For a dataset of ${datasetSize} samples, using ${(trainRatio * 100).toFixed(0)}% train / ${(validationRatio * 100).toFixed(0)}% validation / ${(testRatio * 100).toFixed(0)}% test split.`,
+        train: `${trainSize} samples for training${datasetSize < 100 ? ' (maximized for small dataset)' : datasetSize > 2000 ? ' (balanced for large dataset)' : ''}.`,
+        validation: `${validationSize} samples for validation${datasetSize > 2000 ? ' (increased for better model evaluation)' : ''}.`,
+        test: `${testSize} samples for final testing.`,
+      },
+      confidence: datasetSize > 100 ? 0.90 : 0.85,
+    };
+  },
+});
+
 // Create fine-tuning job
 export const create = mutation({
   args: {
@@ -133,6 +202,11 @@ export const create = mutation({
     provider: v.string(),
     model: v.string(),
     connectionId: v.optional(v.id("llm_connections")),
+    dataSplit: v.optional(v.object({
+      train: v.number(),
+      validation: v.number(),
+      test: v.number(),
+    })),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -150,6 +224,9 @@ export const create = mutation({
       if (connection.userId !== user._id) throw new Error("Not authorized to use this connection");
       if (!connection.isActive) throw new Error("LLM connection is not active");
     }
+
+    // Use provided split or default
+    const dataSplit = args.dataSplit || { train: 0.8, validation: 0.1, test: 0.1 };
 
     // Calculate estimates
     const totalTokens = dataset.size * (dataset.metadata.avgTokens || 100) * args.parameters.epochs;
@@ -181,7 +258,11 @@ export const create = mutation({
       userId: user._id,
       action: "finetune_started",
       finetuneJobId: jobId,
-      metadata: { datasetId: args.datasetId, provider: args.provider },
+      metadata: { 
+        datasetId: args.datasetId, 
+        provider: args.provider,
+        dataSplit,
+      },
     });
 
     // Schedule job submission based on provider
@@ -191,6 +272,7 @@ export const create = mutation({
         datasetId: args.datasetId,
         model: args.model,
         parameters: args.parameters,
+        dataSplit,
       });
     } else if (args.provider === "custom" && args.connectionId) {
       await ctx.scheduler.runAfter(0, (internal as any).providers_custom.submitJob, {
@@ -198,6 +280,7 @@ export const create = mutation({
         datasetId: args.datasetId,
         connectionId: args.connectionId,
         parameters: args.parameters,
+        dataSplit,
       });
     }
 
