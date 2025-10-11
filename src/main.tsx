@@ -20,6 +20,7 @@ import FinetuneJobsList from "./pages/FinetuneJobsList.tsx";
 import JobMonitoring from "./pages/JobMonitoring.tsx";
 import ResultsComparison from "./pages/ResultsComparison.tsx";
 import LLMConnections from "./pages/LLMConnections.tsx";
+import ExternalDatasetImport from "./pages/ExternalDatasetImport.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
   {
     path: "/llm-connections",
     element: <LLMConnections />,
+  },
+  {
+    path: "/external-import",
+    element: <ExternalDatasetImport />,
   },
   {
     path: "*",
