@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getCurrentUser } from "./users";
+import { internal } from "./_generated/api";
 
 // Create content entry
 export const create = mutation({
@@ -14,19 +15,38 @@ export const create = mutation({
     dialect: v.optional(v.string()),
     culturalContext: v.optional(v.string()),
     status: v.optional(v.union(v.literal("draft"), v.literal("published"))),
+    enableAIAnalysis: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
     if (!user) throw new Error("Not authenticated");
 
+    const { enableAIAnalysis, ...contentData } = args;
+
+    // Create content with initial quality score
     const contentId = await ctx.db.insert("content", {
-      ...args,
+      ...contentData,
       userId: user._id,
       status: args.status || "draft",
       qualityScore: 0,
       translatedText: undefined,
       aiAnalysis: undefined,
     });
+
+    // Schedule AI analysis if enabled
+    if (enableAIAnalysis) {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_gemini.analyzeQuality, {
+        text: args.text,
+        language: args.language,
+        contentType: args.contentType,
+        culturalContext: args.culturalContext,
+      }).then(async (result: any) => {
+        await ctx.db.patch(contentId, {
+          qualityScore: result.qualityScore,
+          aiAnalysis: result.analysis,
+        });
+      });
+    }
 
     // Log activity
     await ctx.db.insert("activities", {

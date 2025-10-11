@@ -18,6 +18,7 @@ import FinetuneForm from "./pages/FinetuneForm.tsx";
 import DatasetBrowser from "./pages/DatasetBrowser.tsx";
 import FinetuneJobsList from "./pages/FinetuneJobsList.tsx";
 import JobMonitoring from "./pages/JobMonitoring.tsx";
+import ResultsComparison from "./pages/ResultsComparison.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -67,6 +68,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/finetune/new" element={<FinetuneForm />} />
             <Route path="/finetune/:id" element={<JobMonitoring />} />
             <Route path="/finetune" element={<FinetuneJobsList />} />
+            <Route path="/results/:id" element={<ResultsComparison />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
