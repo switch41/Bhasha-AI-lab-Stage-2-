@@ -3,11 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { Database, Sparkles, Globe, TrendingUp, Users, Zap, ArrowRight, BookOpen } from "lucide-react";
+import { Database, Sparkles, Globe, TrendingUp, Users, Zap, ArrowRight, BookOpen, Plug, Activity } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  
+  // Fetch data for authenticated users
+  const llmConnections = useQuery(api.llmConnections.list, isAuthenticated ? {} : "skip");
+  const datasets = useQuery(api.datasets.list, isAuthenticated ? {} : "skip");
+  const runningJobs = useQuery(
+    api.finetune.listJobs, 
+    isAuthenticated ? { status: "running" } : "skip"
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -24,6 +36,84 @@ export default function Landing() {
           </Button>
         </div>
       </header>
+
+      {/* Status Bar for Authenticated Users */}
+      {isAuthenticated && (llmConnections || datasets || runningJobs) && (
+        <section className="bg-muted/30 border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-6">
+                {/* LLM Connection Status */}
+                <div className="flex items-center gap-2">
+                  <Plug className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    {llmConnections?.filter(c => c.isActive).length || 0} LLM{llmConnections?.filter(c => c.isActive).length !== 1 ? 's' : ''} Connected
+                  </span>
+                  {llmConnections && llmConnections.length > 0 && (
+                    <Badge variant="outline" className="text-xs">
+                      {llmConnections.filter(c => c.testStatus === "success").length} Active
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Dataset Status */}
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    {datasets?.length || 0} Dataset{datasets?.length !== 1 ? 's' : ''} Ready
+                  </span>
+                </div>
+
+                {/* Running Jobs */}
+                {runningJobs && runningJobs.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary animate-pulse" />
+                    <span className="text-sm font-medium text-primary">
+                      {runningJobs.length} Job{runningJobs.length !== 1 ? 's' : ''} Running
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/dashboard")}
+              >
+                View Dashboard
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Active Job Progress */}
+            {runningJobs && runningJobs.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {runningJobs.slice(0, 2).map((job) => {
+                  const progress = (job.metrics.currentEpoch / job.parameters.epochs) * 100;
+                  return (
+                    <div key={job._id} className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium">{job.model} - Epoch {job.metrics.currentEpoch}/{job.parameters.epochs}</span>
+                          <span className="text-xs text-muted-foreground">{progress.toFixed(0)}%</span>
+                        </div>
+                        <Progress value={progress} className="h-1.5" />
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => navigate(`/finetune/${job._id}`)}
+                      >
+                        Monitor
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20">
