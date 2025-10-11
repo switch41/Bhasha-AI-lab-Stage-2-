@@ -18,12 +18,17 @@ export default function DatasetForm() {
   
   const createDataset = useMutation(api.datasets.create);
   const contentStats = useQuery(api.content.stats);
+  const llmConnections = useQuery(api.llmConnections.list, {});
 
   const [formData, setFormData] = useState({
     name: "",
     language: "",
     contentType: "",
     minQualityScore: 0,
+    autoFinetune: false,
+    provider: "openai",
+    model: "gpt-3.5-turbo",
+    connectionId: "",
   });
 
   const [isCreating, setIsCreating] = useState(false);
@@ -52,9 +57,15 @@ export default function DatasetForm() {
         language: formData.language,
         contentType: formData.contentType || undefined,
         minQualityScore: formData.minQualityScore > 0 ? formData.minQualityScore : undefined,
+        autoFinetune: formData.autoFinetune,
+        finetuneConfig: formData.autoFinetune ? {
+          provider: formData.provider,
+          model: formData.provider === "custom" ? "custom" : formData.model,
+          connectionId: formData.provider === "custom" && formData.connectionId ? formData.connectionId as any : undefined,
+        } : undefined,
       });
-      toast.success("Dataset created successfully!");
-      navigate(`/datasets/${datasetId}`);
+      toast.success(formData.autoFinetune ? "Dataset created and fine-tuning started!" : "Dataset created successfully!");
+      navigate(`/datasets`);
     } catch (error) {
       toast.error("Failed to create dataset. Please try again.");
       console.error(error);
@@ -164,6 +175,88 @@ export default function DatasetForm() {
                     Only include content with quality score above this threshold
                   </p>
                 </div>
+
+                <Card className="bg-muted/30 border-primary/20">
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <Label htmlFor="autoFinetune" className="font-medium cursor-pointer">
+                          Auto-start Fine-tuning
+                        </Label>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="autoFinetune"
+                        checked={formData.autoFinetune}
+                        onChange={(e) => setFormData({ ...formData, autoFinetune: e.target.checked })}
+                        className="h-4 w-4 cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically start fine-tuning with AI-optimized parameters after dataset creation
+                    </p>
+
+                    {formData.autoFinetune && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="provider">Provider</Label>
+                            <Select
+                              value={formData.provider}
+                              onValueChange={(value) => setFormData({ ...formData, provider: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="openai">OpenAI</SelectItem>
+                                <SelectItem value="custom">Custom LLM</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {formData.provider === "custom" ? (
+                            <div className="space-y-2">
+                              <Label htmlFor="connection">LLM Connection</Label>
+                              <Select
+                                value={formData.connectionId}
+                                onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select connection" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {llmConnections?.filter(c => c.isActive).map((conn) => (
+                                    <SelectItem key={conn._id} value={conn._id}>
+                                      {conn.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <Label htmlFor="model">Model</Label>
+                              <Select
+                                value={formData.model}
+                                onValueChange={(value) => setFormData({ ...formData, model: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                                  <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {contentStats && (
                   <Card className="bg-muted/50">
