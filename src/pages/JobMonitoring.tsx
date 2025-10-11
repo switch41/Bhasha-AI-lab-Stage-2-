@@ -18,7 +18,7 @@ export default function JobMonitoring() {
   const { id } = useParams<{ id: string }>();
   
   const job = useQuery(api.finetune.getStatus, id ? { jobId: id as Id<"finetune_jobs"> } : "skip");
-  const dataset = useQuery(api.datasets.get, job?.datasetId ? { id: job.datasetId } : "skip");
+  const dataset = useQuery(api.datasets.getById, job?.datasetId ? { id: job.datasetId } : "skip");
   const cancelJob = useMutation(api.finetune.cancel);
 
   useEffect(() => {
