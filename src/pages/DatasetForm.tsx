@@ -36,6 +36,14 @@ export default function DatasetForm() {
     connectionId: "",
   });
 
+  const [manualFinetuneParams, setManualFinetuneParams] = useState({
+    learningRate: 0.00003,
+    batchSize: 16,
+    epochs: 3,
+    loraRank: 8,
+    loraAlpha: 16,
+  });
+
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
@@ -356,7 +364,69 @@ export default function DatasetForm() {
                           </div>
                         </div>
 
-                        {formData.provider !== "manual" && (
+                        {formData.provider === "manual" ? (
+                          <div className="space-y-4 pt-4 border-t">
+                            <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="learningRate" className="text-xs">Learning Rate</Label>
+                                <Input
+                                  id="learningRate"
+                                  type="number"
+                                  step="0.00001"
+                                  min="0.00001"
+                                  max="0.001"
+                                  value={manualFinetuneParams.learningRate}
+                                  onChange={(e) => setManualFinetuneParams({ ...manualFinetuneParams, learningRate: parseFloat(e.target.value) || 0.00003 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="batchSize" className="text-xs">Batch Size</Label>
+                                <Input
+                                  id="batchSize"
+                                  type="number"
+                                  min="1"
+                                  max="128"
+                                  value={manualFinetuneParams.batchSize}
+                                  onChange={(e) => setManualFinetuneParams({ ...manualFinetuneParams, batchSize: parseInt(e.target.value) || 16 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="epochs" className="text-xs">Epochs</Label>
+                                <Input
+                                  id="epochs"
+                                  type="number"
+                                  min="1"
+                                  max="20"
+                                  value={manualFinetuneParams.epochs}
+                                  onChange={(e) => setManualFinetuneParams({ ...manualFinetuneParams, epochs: parseInt(e.target.value) || 3 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="loraRank" className="text-xs">LoRA Rank</Label>
+                                <Input
+                                  id="loraRank"
+                                  type="number"
+                                  min="1"
+                                  max="64"
+                                  value={manualFinetuneParams.loraRank}
+                                  onChange={(e) => setManualFinetuneParams({ ...manualFinetuneParams, loraRank: parseInt(e.target.value) || 8 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="loraAlpha" className="text-xs">LoRA Alpha</Label>
+                                <Input
+                                  id="loraAlpha"
+                                  type="number"
+                                  min="1"
+                                  max="128"
+                                  value={manualFinetuneParams.loraAlpha}
+                                  onChange={(e) => setManualFinetuneParams({ ...manualFinetuneParams, loraAlpha: parseInt(e.target.value) || 16 })}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
                           <div className="space-y-4 pt-2">
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
