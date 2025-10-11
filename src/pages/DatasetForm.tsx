@@ -25,6 +25,11 @@ export default function DatasetForm() {
     language: "",
     contentType: "",
     minQualityScore: 0,
+    autoNormalize: true,
+    removeDuplicates: true,
+    minTextLength: 10,
+    maxTextLength: 10000,
+    normMinQuality: 0,
     autoFinetune: false,
     provider: "openai",
     model: "gpt-3.5-turbo",
@@ -57,6 +62,13 @@ export default function DatasetForm() {
         language: formData.language,
         contentType: formData.contentType || undefined,
         minQualityScore: formData.minQualityScore > 0 ? formData.minQualityScore : undefined,
+        autoNormalize: formData.autoNormalize,
+        normalizationOptions: formData.autoNormalize ? {
+          removeDuplicates: formData.removeDuplicates,
+          minTextLength: formData.minTextLength > 0 ? formData.minTextLength : undefined,
+          maxTextLength: formData.maxTextLength < 10000 ? formData.maxTextLength : undefined,
+          minQualityScore: formData.normMinQuality > 0 ? formData.normMinQuality : undefined,
+        } : undefined,
         autoFinetune: formData.autoFinetune,
         finetuneConfig: formData.autoFinetune ? {
           provider: formData.provider,
@@ -175,6 +187,80 @@ export default function DatasetForm() {
                     Only include content with quality score above this threshold
                   </p>
                 </div>
+
+                <Card className="bg-muted/30 border-primary/20">
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <Label htmlFor="autoNormalize" className="font-medium cursor-pointer">
+                          Auto-Normalize Dataset
+                        </Label>
+                      </div>
+                      <input
+                        type="checkbox"
+                        id="autoNormalize"
+                        checked={formData.autoNormalize}
+                        onChange={(e) => setFormData({ ...formData, autoNormalize: e.target.checked })}
+                        className="h-4 w-4 cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically clean and optimize dataset during creation
+                    </p>
+
+                    {formData.autoNormalize && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="removeDuplicates" className="text-sm">Remove Duplicates</Label>
+                          <input
+                            type="checkbox"
+                            id="removeDuplicates"
+                            checked={formData.removeDuplicates}
+                            onChange={(e) => setFormData({ ...formData, removeDuplicates: e.target.checked })}
+                            className="h-4 w-4 cursor-pointer"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="minTextLength" className="text-sm">Min Text Length</Label>
+                            <Input
+                              id="minTextLength"
+                              type="number"
+                              min="0"
+                              value={formData.minTextLength}
+                              onChange={(e) => setFormData({ ...formData, minTextLength: parseInt(e.target.value) || 0 })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="maxTextLength" className="text-sm">Max Text Length</Label>
+                            <Input
+                              id="maxTextLength"
+                              type="number"
+                              min="0"
+                              value={formData.maxTextLength}
+                              onChange={(e) => setFormData({ ...formData, maxTextLength: parseInt(e.target.value) || 10000 })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="normMinQuality" className="text-sm">Normalization Min Quality</Label>
+                          <Input
+                            id="normMinQuality"
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={formData.normMinQuality}
+                            onChange={(e) => setFormData({ ...formData, normMinQuality: parseFloat(e.target.value) || 0 })}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 <Card className="bg-muted/30 border-primary/20">
                   <CardContent className="pt-6 space-y-4">
