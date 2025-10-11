@@ -41,6 +41,8 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
   - Supported languages: Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Odia
   - Valid content types enforcement
 - **Content Browser**: Search and filter by language, type, and status
+- **Advanced Search**: Full-text search across content, categories, and cultural context
+- **Statistics Dashboard**: Track content by language, type, and average quality scores
 
 ### 3. Dataset Creation & Management
 - **Dataset Builder**: Create curated datasets from published content
@@ -60,6 +62,7 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
 - **Data Splitting**: Configurable train/validation/test splits
 - **Export Functionality**: JSONL format for training
 - **Dataset Browser**: View, filter, preview, and export datasets
+- **Metadata Tracking**: Comprehensive metadata including regions, categories, and token statistics
 
 ### 4. Fine-tuning System
 - **Unified Base Model Selection**:
@@ -122,6 +125,10 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
 - **Data Transformation**: Normalization and cleaning
 - **Deduplication**: Remove duplicate entries automatically
 - **Pipeline Configuration**: Automated dataset creation and fine-tuning workflows
+- **Progress Tracking**: Real-time status updates during import (pending, processing, completed, failed)
+- **Error Logging**: Comprehensive error tracking and reporting
+- **Batch Processing**: Handle multiple records efficiently
+- **Field Mapping Templates**: Save and reuse mapping configurations
 
 ### 8. Results Comparison & Testing
 - **Test Prompt Management**: Add test prompts to completed jobs
@@ -130,6 +137,8 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
   - BLEU score computation
   - Cultural accuracy assessment
 - **Evaluation Status Tracking**: Monitor evaluation progress in real-time
+- **Side-by-Side Comparison**: Visual comparison of base vs fine-tuned outputs
+- **Expected Output Validation**: Compare against expected results
 
 ### 9. Dashboard & Analytics
 - **Statistics Overview**:
@@ -154,9 +163,13 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
   - Dataset creation tools
   - AI fine-tuning workflows
   - Quality scoring system
-- **Key Statistics**: Real-time project metrics display
+  - Collaborative features
+  - Multi-lingual support
+- **Key Statistics**: Real-time project metrics display (10+ languages, 1000+ entries, 50+ datasets, 100+ models)
 - **Call-to-Actions**: Tailored for authenticated and unauthenticated users
 - **Status Bar**: LLM connections, datasets, and active jobs overview
+- **Active Job Progress**: Real-time progress bars for running fine-tuning jobs
+- **Dynamic Navigation**: Context-aware buttons based on authentication status
 
 ### 11. Backend Infrastructure
 - **Convex Backend**: Real-time database and server functions
