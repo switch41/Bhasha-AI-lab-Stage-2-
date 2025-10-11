@@ -242,7 +242,7 @@ export default function DatasetForm() {
                               <CardContent className="pt-4 pb-4">
                                 <h4 className="font-semibold text-sm mb-1">Manual</h4>
                                 <p className="text-xs text-muted-foreground">
-                                  Basic cleanup: Remove duplicates, min 10 chars
+                                  Configure your own cleanup rules
                                 </p>
                               </CardContent>
                             </Card>
@@ -275,19 +275,75 @@ export default function DatasetForm() {
                           </div>
                         </div>
 
-                        <div className="space-y-2 pt-2">
-                          <Label className="text-xs text-muted-foreground">Current Settings:</Label>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Min Length:</span>
-                              <span className="font-medium">{formData.minTextLength}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Min Quality:</span>
-                              <span className="font-medium">{formData.normMinQuality}</span>
+                        {formData.minTextLength === 10 && formData.normMinQuality === 0 ? (
+                          <div className="space-y-4 pt-4 border-t">
+                            <Label className="text-sm font-semibold">Manual Normalization Settings</Label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="normMinTextLength" className="text-xs">Min Text Length</Label>
+                                <Input
+                                  id="normMinTextLength"
+                                  type="number"
+                                  min="1"
+                                  max="10000"
+                                  value={formData.minTextLength}
+                                  onChange={(e) => setFormData({ ...formData, minTextLength: parseInt(e.target.value) || 10 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="normMaxTextLength" className="text-xs">Max Text Length</Label>
+                                <Input
+                                  id="normMaxTextLength"
+                                  type="number"
+                                  min="1"
+                                  max="10000"
+                                  value={formData.maxTextLength}
+                                  onChange={(e) => setFormData({ ...formData, maxTextLength: parseInt(e.target.value) || 10000 })}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="normMinQuality" className="text-xs">Min Quality Score</Label>
+                                <Input
+                                  id="normMinQuality"
+                                  type="number"
+                                  min="0"
+                                  max="10"
+                                  step="0.1"
+                                  value={formData.normMinQuality}
+                                  onChange={(e) => setFormData({ ...formData, normMinQuality: parseFloat(e.target.value) || 0 })}
+                                />
+                              </div>
+                              <div className="space-y-2 flex items-end">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    id="normRemoveDuplicates"
+                                    checked={formData.removeDuplicates}
+                                    onChange={(e) => setFormData({ ...formData, removeDuplicates: e.target.checked })}
+                                    className="h-4 w-4 cursor-pointer"
+                                  />
+                                  <Label htmlFor="normRemoveDuplicates" className="text-xs cursor-pointer">
+                                    Remove Duplicates
+                                  </Label>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-2 pt-2">
+                            <Label className="text-xs text-muted-foreground">Current Settings:</Label>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Min Length:</span>
+                                <span className="font-medium">{formData.minTextLength}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Min Quality:</span>
+                                <span className="font-medium">{formData.normMinQuality}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
