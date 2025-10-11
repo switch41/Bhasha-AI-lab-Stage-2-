@@ -479,59 +479,55 @@ export default function DatasetBrowser() {
                     </Select>
                   </div>
 
-                  {selectedProvider === "openai" ? (
-                    <div className="space-y-2">
-                      <Label>Base Model</Label>
-                      <Select value={selectedModel} onValueChange={setSelectedModel}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                          <SelectItem value="gpt-4">GPT-4</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label>Custom LLM Connection</Label>
-                      <Select value={selectedConnection} onValueChange={setSelectedConnection}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select connection" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {llmConnections && llmConnections.length > 0 ? (
-                            llmConnections
+                  <div className="space-y-2">
+                    <Label>Base Model</Label>
+                    <Select 
+                      value={selectedProvider === "openai" ? selectedModel : selectedConnection} 
+                      onValueChange={(value) => {
+                        if (value === "gpt-3.5-turbo" || value === "gpt-4") {
+                          setSelectedProvider("openai");
+                          setSelectedModel(value);
+                        } else {
+                          setSelectedProvider("custom");
+                          setSelectedConnection(value);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select base model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</SelectItem>
+                        <SelectItem value="gpt-4">GPT-4 (OpenAI)</SelectItem>
+                        {llmConnections && llmConnections.length > 0 && (
+                          <>
+                            {llmConnections
                               .filter((conn) => conn.isActive)
                               .map((conn) => (
                                 <SelectItem key={conn._id} value={conn._id}>
-                                  {conn.name}
+                                  {conn.name} (Custom)
                                 </SelectItem>
-                              ))
-                          ) : (
-                            <SelectItem value="none" disabled>
-                              No active connections
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      {(!llmConnections || llmConnections.length === 0) && (
-                        <p className="text-xs text-muted-foreground">
-                          No custom LLM connections found.{" "}
-                          <Button
-                            variant="link"
-                            className="h-auto p-0 text-xs"
-                            onClick={() => {
-                              setConfigDatasetId(null);
-                              navigate("/llm-connections");
-                            }}
-                          >
-                            Add one now
-                          </Button>
-                        </p>
-                      )}
-                    </div>
-                  )}
+                              ))}
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                      <p className="text-xs text-muted-foreground">
+                        No custom LLM connections found.{" "}
+                        <Button
+                          variant="link"
+                          className="h-auto p-0 text-xs"
+                          onClick={() => {
+                            setConfigDatasetId(null);
+                            navigate("/llm-connections");
+                          }}
+                        >
+                          Add one now
+                        </Button>
+                      </p>
+                    )}
+                  </div>
 
                   <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
                   <div className="grid grid-cols-2 gap-4">
@@ -611,61 +607,55 @@ export default function DatasetBrowser() {
                     </Select>
                   </div>
 
-                  {selectedProvider === "openai" && (
-                    <div className="space-y-2">
-                      <Label>Base Model</Label>
-                      <Select value={selectedModel} onValueChange={setSelectedModel}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                          <SelectItem value="gpt-4">GPT-4</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {selectedProvider === "custom" && (
-                    <div className="space-y-2">
-                      <Label>Custom LLM Connection</Label>
-                      <Select value={selectedConnection} onValueChange={setSelectedConnection}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select connection" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {llmConnections && llmConnections.length > 0 ? (
-                            llmConnections
+                  <div className="space-y-2">
+                    <Label>Base Model</Label>
+                    <Select 
+                      value={selectedProvider === "openai" ? selectedModel : selectedConnection} 
+                      onValueChange={(value) => {
+                        if (value === "gpt-3.5-turbo" || value === "gpt-4") {
+                          setSelectedProvider("openai");
+                          setSelectedModel(value);
+                        } else {
+                          setSelectedProvider("custom");
+                          setSelectedConnection(value);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select base model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</SelectItem>
+                        <SelectItem value="gpt-4">GPT-4 (OpenAI)</SelectItem>
+                        {llmConnections && llmConnections.length > 0 && (
+                          <>
+                            {llmConnections
                               .filter((conn) => conn.isActive)
                               .map((conn) => (
                                 <SelectItem key={conn._id} value={conn._id}>
-                                  {conn.name}
+                                  {conn.name} (Custom)
                                 </SelectItem>
-                              ))
-                          ) : (
-                            <SelectItem value="none" disabled>
-                              No active connections
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      {(!llmConnections || llmConnections.length === 0) && (
-                        <p className="text-xs text-muted-foreground">
-                          No custom LLM connections found.{" "}
-                          <Button
-                            variant="link"
-                            className="h-auto p-0 text-xs"
-                            onClick={() => {
-                              setConfigDatasetId(null);
-                              navigate("/llm-connections");
-                            }}
-                          >
-                            Add one now
-                          </Button>
-                        </p>
-                      )}
-                    </div>
-                  )}
+                              ))}
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                      <p className="text-xs text-muted-foreground">
+                        No custom LLM connections found.{" "}
+                        <Button
+                          variant="link"
+                          className="h-auto p-0 text-xs"
+                          onClick={() => {
+                            setConfigDatasetId(null);
+                            navigate("/llm-connections");
+                          }}
+                        >
+                          Add one now
+                        </Button>
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
