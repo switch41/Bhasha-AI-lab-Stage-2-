@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Database, Sparkles, BarChart3, Plus, FileText, Brain, TrendingUp, Plug } from "lucide-react";
+import { Loader2, Database, Sparkles, BarChart3, Plus, FileText, Brain, TrendingUp, Plug, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
@@ -111,7 +111,7 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Button
                 variant="outline"
                 className="h-24 flex flex-col items-center justify-center gap-2"
@@ -157,6 +157,18 @@ export default function Dashboard() {
                 <div className="text-center">
                   <div className="font-semibold">LLM Connections</div>
                   <div className="text-xs text-muted-foreground">Manage your LLMs</div>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-24 flex flex-col items-center justify-center gap-2"
+                onClick={() => navigate("/external-import")}
+              >
+                <Download className="h-6 w-6" />
+                <div className="text-center">
+                  <div className="font-semibold">Import Dataset</div>
+                  <div className="text-xs text-muted-foreground">Kaggle, CSV, URL</div>
                 </div>
               </Button>
             </CardContent>

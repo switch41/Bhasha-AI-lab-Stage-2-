@@ -150,6 +150,73 @@ const schema = defineSchema(
       lastTested: v.optional(v.number()),
       testStatus: v.optional(v.union(v.literal("success"), v.literal("failed"))),
     }).index("by_user", ["userId"]),
+
+    // External dataset imports
+    external_datasets: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      source: v.union(v.literal("kaggle"), v.literal("upload"), v.literal("url")),
+      sourceIdentifier: v.string(),
+      status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed")),
+      totalRecords: v.number(),
+      processedRecords: v.number(),
+      fileStorageId: v.optional(v.id("_storage")),
+      errorLog: v.optional(v.array(v.string())),
+      metadata: v.optional(v.any()),
+    }).index("by_user", ["userId"])
+      .index("by_status", ["status"]),
+
+    // Data import pipelines
+    import_pipelines: defineTable({
+      userId: v.id("users"),
+      externalDatasetId: v.id("external_datasets"),
+      status: v.union(
+        v.literal("pending"),
+        v.literal("normalizing"),
+        v.literal("validating"),
+        v.literal("ingesting"),
+        v.literal("creating_dataset"),
+        v.literal("fine_tuning"),
+        v.literal("completed"),
+        v.literal("failed"),
+        v.literal("cancelled")
+      ),
+      currentStep: v.number(),
+      totalSteps: v.number(),
+      contentIds: v.array(v.id("content")),
+      datasetId: v.optional(v.id("datasets")),
+      finetuneJobId: v.optional(v.id("finetune_jobs")),
+      config: v.object({
+        fieldMappings: v.any(),
+        autoDetectLanguage: v.boolean(),
+        removeDuplicates: v.boolean(),
+        enableAIAnalysis: v.boolean(),
+        defaultContentType: v.optional(v.string()),
+        defaultStatus: v.string(),
+        minQualityThreshold: v.number(),
+        autoCreateDataset: v.boolean(),
+        datasetConfig: v.optional(v.any()),
+        autoFinetune: v.boolean(),
+        finetuneConfig: v.optional(v.any()),
+      }),
+      errorLog: v.array(v.string()),
+      startedAt: v.optional(v.number()),
+      completedAt: v.optional(v.number()),
+    }).index("by_user", ["userId"])
+      .index("by_status", ["status"])
+      .index("by_external_dataset", ["externalDatasetId"]),
+
+    // Field mapping templates
+    field_mappings: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      sourceType: v.string(),
+      mappings: v.any(),
+      language: v.string(),
+      contentType: v.string(),
+      isDefault: v.boolean(),
+    }).index("by_user", ["userId"])
+      .index("by_source_type", ["sourceType"]),
   },
   {
     schemaValidation: false,
