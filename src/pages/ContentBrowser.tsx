@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Search, Plus, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { HeaderLogo } from "@/components/Logo";
 
 export default function ContentBrowser() {
   const { isLoading, isAuthenticated } = useAuth();
@@ -53,7 +54,7 @@ export default function ContentBrowser() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Logo" className="h-8 w-8 cursor-pointer" onClick={() => navigate("/dashboard")} />
+            <HeaderLogo onClick={() => navigate("/dashboard")} />
             <h1 className="text-2xl font-bold tracking-tight">Content Browser</h1>
           </div>
           <Button onClick={() => navigate("/content/new")}>

@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { LandingLogo } from "@/components/Logo";
 
 interface AuthProps {
   redirectAfterAuth?: string;
@@ -108,14 +109,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <>
               <CardHeader className="text-center">
               <div className="flex justify-center">
-                    <img
-                      src="./logo.svg"
-                      alt="Lock Icon"
-                      width={64}
-                      height={64}
-                      className="rounded-lg mb-4 mt-4 cursor-pointer"
-                      onClick={() => navigate("/")}
-                    />
+                    <LandingLogo onClick={() => navigate("/")} />
                   </div>
                 <CardTitle className="text-xl">Get Started</CardTitle>
                 <CardDescription>

@@ -1,137 +1,390 @@
-# Culture AI Suite (Bhasha AI Lab)
+# Culture AI Suite: Advanced AI Model Training Platform
 
-## Overview
+Culture AI Suite is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
 
-**Culture AI Suite** is a comprehensive platform for building and fine-tuning AI models for low-resource Indian languages. This application empowers communities to contribute linguistic content, create curated datasets, and train custom AI models while preserving cultural and linguistic diversity.
+## Features
 
-### Tech Stack
-- **Frontend**: Vite, React 19, TypeScript, React Router v7
-- **Styling**: Tailwind v4, Shadcn UI, Framer Motion
-- **Backend & Database**: Convex (real-time serverless backend)
-- **Authentication**: Convex Auth (Email OTP, Anonymous)
-- **AI Integrations**: OpenAI (GPT-3.5, GPT-4), Google Gemini
-- **Icons**: Lucide Icons
-- **Package Manager**: pnpm
+### Core Functionality
+- **Multi-Language Support**
+  - Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati
+  - Kannada, Malayalam, Punjabi, Odia
+  - Extensible language framework
 
-All relevant files live in the 'src' directory.
+- **Content Management Levels**
+  1. **Basic (Level 1)**
+     - Text content contribution
+     - Basic metadata tagging
+     - Draft/Published workflow
 
-## 🚀 Key Features
+  2. **Intermediate (Level 2)**
+     - Rich metadata (region, dialect, cultural context)
+     - AI-powered quality analysis
+     - Auto-deduplication (85% similarity threshold)
 
-### 1. Authentication & User Management
-- **Email OTP Authentication**: Secure passwordless login
-- **Anonymous Guest Access**: Try the platform without registration
-- **Role-Based Access Control**: Admin, User, Member roles
-- **Activity Logging**: Track all key user actions
+  3. **Advanced (Level 3)**
+     - All features from levels 1 & 2
+     - Comprehensive validation (10-10,000 chars, max 2000 tokens)
+     - Advanced filtering and search
+     - Batch processing capabilities
 
-### 2. Content Management
-- **Content Contribution**: Add linguistic content (text, proverbs, narratives)
-- **Rich Metadata**: Language, region, category, source, dialect, cultural context
-- **Draft/Published Workflow**: Review before publishing
-- **AI Quality Analysis**: Optional Gemini API integration for automated scoring
-- **Auto-deduplication**: Prevents duplicate entries (85% similarity threshold)
-- **Comprehensive Validation**:
-  - Text length: 10-10,000 characters
-  - Token count: max 2000 tokens
-  - Supported languages: Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Malayalam, Punjabi, Odia
-- **Content Browser**: Search and filter by language, type, status
+### Advanced Features
+- **Smart Dataset Creation**: AI-powered dataset normalization and cleanup
+- **Fine-tuning Pipeline**: Automated model training with parameter optimization
+- **Real-time Monitoring**: Live job tracking with progress indicators
+- **Custom LLM Integration**: Connect external AI providers
+- **External Data Import**: Multi-source data ingestion (Kaggle, URLs, files)
+- **Results Comparison**: Model evaluation with BLEU scores and cultural accuracy
+- **Dark/Light Theme**: Toggle between themes with persistent preferences
+- **Batch Processing**: Process multiple files and datasets simultaneously
+- **Progress Tracking**: Real-time progress indication for all operations
 
-### 3. Dataset Creation & Management
-- **Dataset Builder**: Create curated datasets from published content
-- **Advanced Filtering**: By language, content type, minimum quality score
-- **Tokenization Analysis**: Detailed metrics (avg, median, min, max, stdDev, percentiles)
-- **Dataset Normalization**:
-  - **Manual Mode**: Custom text length, quality score, duplicate removal
-  - **AI-Powered Mode**: Smart cleanup (min 50 chars, quality ≥5.0, auto-dedup)
-- **Data Splitting**: Configurable train/validation/test splits
-- **Export Functionality**: JSONL format for training
-- **Dataset Browser**: View, filter, preview, and export datasets
+## Detailed Feature Specifications
 
-### 4. Fine-tuning System
-- **Unified Base Model Selection**:
-  - OpenAI models (GPT-3.5 Turbo, GPT-4)
-  - Custom LLM connections
-  - Automatic provider inference
-- **AI Parameter Optimization**:
-  - Dynamic learning rate based on dataset size
-  - Batch size adjustment for token variance
-  - Epoch recommendations
-  - LoRA rank and alpha configuration (4-64 rank based on complexity)
-  - Cost and time estimates
-- **Smart Split Feature**:
-  - **AI-Optimized Split**: Analyzes dataset size for optimal ratios
-  - **Manual Split**: Custom percentage input with validation
-  - Real-time sample count display
-  - Reasoning and confidence scores
-- **Manual Parameter Configuration**: Full control over hyperparameters
-- **Auto-Fine-tuning**: Trigger training upon dataset creation
+### Smart Split Feature (Latest Addition)
+The platform includes an advanced dataset splitting system with two modes:
 
-### 5. Job Monitoring & Tracking
-- **Real-time Job Tracking**: Progress, metrics, status updates
-- **OpenAI Integration**: Live status polling and synchronization
-- **Job Metrics**: Loss history, steps, current epoch
-- **Job Cancellation**: Cancel running jobs
-- **Status Filtering**: View by status (pending, running, completed, failed, cancelled)
-- **Cost & Time Estimates**: Display estimated costs and duration
+#### AI-Optimized Split
+- **Dataset Size Analysis**: Analyzes total samples and content complexity
+- **Optimal Ratio Calculation**: Automatically determines best train/validation/test splits
+- **Confidence Scoring**: Provides confidence levels for split recommendations
+- **Reasoning Display**: Shows AI reasoning behind split decisions
 
-### 6. LLM Connections Management
-- **Custom LLM Integration**: Connect external LLM providers
-- **Configuration Options**:
-  - API endpoints
-  - Authentication types (Bearer, API Key, None)
-  - Data formats (JSONL, JSON, CSV)
-  - Model identifiers
-- **Connection Testing**: Verify LLM connections
-- **Active/Inactive Toggle**: Enable/disable connections
+#### Manual Split Configuration
+- **Custom Percentages**: User-defined split ratios with validation
+- **Real-time Sample Count**: Live display of actual sample counts per split
+- **Constraint Validation**: Ensures minimum samples per split
+- **Preview Mode**: Shows split distribution before applying
 
-### 7. External Dataset Import
-- **Multi-source Support**: Kaggle, file upload, URL
-- **Data Format Detection**: Automatic format recognition
-- **Field Mapping**: Map external fields to internal schema
-- **Record Validation**: Required fields, text/token length, quality, language
-- **Data Transformation**: Normalization and cleaning
-- **Deduplication**: Remove duplicate entries
-- **Pipeline Configuration**: Automated dataset creation and fine-tuning
+### Tokenization Analysis Engine
+Comprehensive token analysis for all datasets:
 
-### 8. Results Comparison & Testing
-- **Test Prompt Management**: Add test prompts to completed jobs
-- **Model Evaluation**: Compare base model vs fine-tuned model outputs
-- **Metrics Calculation**: BLEU score and cultural accuracy
-- **Evaluation Status Tracking**: Monitor evaluation progress
+#### Distribution Metrics
+- **Average Tokens**: Mean token count across dataset
+- **Median Tokens**: Middle value for balanced analysis
+- **Min/Max Tokens**: Range boundaries for content validation
+- **Standard Deviation**: Token count variance analysis
+- **Percentile Analysis**: 25th, 50th, 75th, 90th, 95th percentiles
 
-### 9. Dashboard & Analytics
-- **Statistics Overview**: Total content, datasets, fine-tune jobs, average quality
-- **Quick Actions**: Add content, create dataset, start fine-tuning, manage LLMs, import data
-- **Recent Activities**: View recent user actions
-- **LLM Connection Status**: Active/total connections display
-- **Real-time Progress**: Active fine-tuning job progress
+#### Quality Indicators
+- **Token Density**: Tokens per character ratio
+- **Content Complexity**: Multi-dimensional complexity scoring
+- **Language Consistency**: Token pattern analysis per language
 
-### 10. Landing Page
-- **Mission Statement**: Project overview and goals
-- **Feature Highlights**: Content contribution, dataset creation, AI fine-tuning
-- **Key Statistics**: Real-time project metrics
-- **Call-to-Actions**: For authenticated and unauthenticated users
-- **Status Bar**: LLM connections, datasets, active jobs
+### AI Parameter Optimization System
+Advanced hyperparameter tuning with intelligent defaults:
 
-### 11. Backend Infrastructure
-- **Convex Backend**: Real-time database and server functions
-- **Cron Jobs**: Automated job polling (every 5 minutes)
-- **Provider Integrations**:
-  - OpenAI (GPT-3.5, GPT-4)
-  - Google Gemini (quality analysis)
-  - Custom LLM providers
-- **Internal Actions**: Scheduled background tasks
-- **Data Export**: JSONL format for training
+#### Dynamic Learning Rate Calculation
+- **Dataset Size Factor**: Learning rate scales with dataset size
+- **Complexity Adjustment**: Higher complexity = lower learning rate
+- **Model Type Consideration**: Different rates for different base models
+- **Convergence Prediction**: Optimized for faster convergence
 
-## 🎨 UI/UX Features
-- **Responsive Design**: Works on desktop, tablet, and mobile
-- **Framer Motion Animations**: Smooth page transitions and interactions
-- **Shadcn UI Components**: Consistent, modern design system
-- **Dark/Light Theme Support**: Using oklch color format
-- **Toast Notifications**: Real-time feedback for user actions
-- **Loading States**: Spinners and progress indicators
-- **Form Validation**: Client-side and server-side validation
+#### Batch Size Optimization
+- **Token Variance Analysis**: Batch size adjusts based on token distribution
+- **Memory Constraints**: Automatic memory-aware batch sizing
+- **GPU Utilization**: Optimizes for hardware capabilities
+- **Training Speed**: Balances speed vs. stability
 
-## 📊 Database Schema
+#### LoRA Configuration Engine
+- **Dynamic Rank Selection**: Rank 4-64 based on dataset complexity
+- **Alpha Parameter Tuning**: Automatically calculated alpha values
+- **Model-Specific Optimization**: Different settings per base model
+- **Efficiency Metrics**: Optimizes for parameter efficiency
+
+#### Cost & Time Estimation
+- **Real-time Cost Calculation**: Live cost estimates during setup
+- **Time Prediction**: Estimated training duration
+- **Resource Optimization**: Suggests optimal configurations
+- **Budget Constraints**: Respects user-defined limits
+
+### Auto-Fine-tuning Pipeline
+Seamless automation from dataset to trained model:
+
+#### Trigger Conditions
+- **Dataset Creation**: Automatically starts when dataset is ready
+- **Quality Thresholds**: Only triggers for high-quality datasets
+- **Size Requirements**: Ensures minimum dataset size
+- **User Preferences**: Respects user automation settings
+
+#### Automated Workflow
+- **Parameter Selection**: Uses AI-optimized parameters
+- **Model Selection**: Chooses best base model for dataset
+- **Progress Monitoring**: Tracks training automatically
+- **Notification System**: Alerts on completion/failure
+
+### Provider Integration Details
+
+#### Google Gemini Integration
+- **Quality Analysis**: Advanced content quality scoring
+- **Cultural Context**: Language-specific cultural analysis
+- **Content Validation**: Automated content verification
+- **Bias Detection**: Identifies potential biases in content
+
+#### OpenAI Integration Specifics
+- **Live Status Polling**: Real-time job status updates
+- **Synchronization**: Automatic status synchronization
+- **Error Handling**: Comprehensive error management
+- **Retry Logic**: Intelligent retry mechanisms
+
+#### Status Filtering System
+- **Job State Filtering**: Filter by pending, running, completed, failed, cancelled
+- **Time-based Filtering**: Filter by creation date, completion time
+- **User Filtering**: Filter by user, team, or organization
+- **Model Filtering**: Filter by base model type
+
+### Data Transformation Pipeline
+
+#### External Import Processing
+- **Format Detection**: Automatic recognition of data formats
+- **Schema Mapping**: Intelligent field mapping to internal schema
+- **Data Validation**: Comprehensive validation pipeline
+- **Quality Scoring**: Automated quality assessment
+
+#### Normalization & Cleaning
+- **Text Normalization**: Standardizes text formatting
+- **Encoding Handling**: Manages various text encodings
+- **Duplicate Removal**: Advanced deduplication algorithms
+- **Content Filtering**: Removes inappropriate or low-quality content
+
+#### Record Validation System
+- **Required Field Validation**: Ensures all mandatory fields present
+- **Text Length Validation**: Validates character and token limits
+- **Language Detection**: Automatic language identification
+- **Quality Thresholds**: Enforces minimum quality standards
+
+## Workflow
+
+The following diagram illustrates the complete workflow of the Culture AI Suite:
+
+```mermaid
+graph TD
+    A[Start<br/>User Authentication] --> B[Content Contribution<br/>Add Linguistic Data]
+    B --> C[Content Validation<br/>AI Quality Analysis]
+    C --> D[Dataset Creation<br/>Curate Training Data]
+    D --> E[Tokenization Analysis<br/>Distribution Metrics]
+    E --> F[Smart Split Feature<br/>AI-Optimized/Manual]
+    F --> G[Dataset Normalization<br/>Manual/AI-Powered Cleanup]
+    G --> H[Auto-Fine-tuning Trigger<br/>Quality Threshold Check]
+    H --> I[AI Parameter Optimization<br/>Learning Rate & Batch Size]
+    I --> J[LoRA Configuration<br/>Dynamic Rank & Alpha]
+    J --> K[Training Execution<br/>OpenAI/Custom LLM]
+    K --> L[Live Status Polling<br/>Real-time Monitoring]
+    L --> M[Results Evaluation<br/>Model Comparison]
+    M --> N[Export & Deploy<br/>JSONL Format]
+    N --> O[End<br/>Model Ready for Use]
+    
+    P[External Import<br/>Kaggle/URL/File] --> Q[Format Detection<br/>Schema Mapping]
+    Q --> R[Data Transformation<br/>Normalization & Cleaning]
+    R --> S[Record Validation<br/>Quality Thresholds]
+    S --> D
+    
+    T[LLM Connections<br/>Custom Providers] --> U[Connection Testing<br/>API Verification]
+    U --> V[Provider Integration<br/>Gemini/OpenAI]
+    V --> I
+    
+    W[Google Gemini<br/>Quality Analysis] --> C
+    X[Status Filtering<br/>Job State Management] --> L
+```
+
+This comprehensive workflow demonstrates how Culture AI Suite handles the complete pipeline from content contribution to model deployment, including:
+
+- **Advanced Tokenization Analysis**: Detailed distribution metrics and quality indicators
+- **Smart Split Technology**: AI-optimized dataset splitting with confidence scoring
+- **Auto-Fine-tuning Pipeline**: Seamless automation from dataset creation to trained model
+- **AI Parameter Optimization**: Dynamic learning rates, batch sizes, and LoRA configuration
+- **Provider Integration**: Google Gemini quality analysis and OpenAI live status polling
+- **Data Transformation**: Comprehensive external import processing with validation
+- **Status Management**: Advanced filtering and real-time monitoring capabilities
+
+## Installation
+
+### Prerequisites
+- Node.js 18 or higher
+- pnpm package manager
+- Convex account for backend services
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/switch41/Nxtwave.git
+cd Nxtwave
+```
+
+### Step 2: Install Dependencies
+```bash
+pnpm install
+```
+
+### Step 3: Environment Setup
+1. Create a `.env` file in the root directory:
+```bash
+# Convex Configuration
+CONVEX_DEPLOYMENT=your_convex_deployment
+VITE_CONVEX_URL=your_convex_url
+
+# Authentication (Backend)
+JWKS=your_jwks_key
+JWT_PRIVATE_KEY=your_jwt_private_key
+SITE_URL=your_site_url
+```
+
+2. Set up Convex authentication:
+```bash
+chmod +x set-convex-jwt-env.sh
+./set-convex-jwt-env.sh
+```
+
+### Step 4: Start Development Server
+```bash
+pnpm dev
+```
+
+## Usage
+
+### Basic Usage
+1. Launch the application:
+   ```bash
+   pnpm dev
+   ```
+
+2. Navigate to `/auth` for authentication
+3. Choose authentication method (Email OTP or Anonymous)
+4. Access the dashboard at `/dashboard`
+
+### Content Management
+1. Navigate to `/content/new` to add linguistic content
+2. Fill in required metadata (language, region, category)
+3. Submit for AI quality analysis (optional)
+4. Review and publish content
+
+### Dataset Creation
+1. Go to `/datasets/create`
+2. Select content using advanced filters
+3. **Tokenization Analysis**: View detailed metrics (avg, median, min, max, stdDev, percentiles)
+4. Choose normalization mode (Manual/AI-Powered)
+5. **Smart Split Configuration**: Configure train/validation/test splits with AI optimization
+6. Export in JSONL format
+
+### Fine-tuning Process
+1. Navigate to `/finetune/new`
+2. Select base model (OpenAI GPT-3.5/GPT-4 or Custom LLM)
+3. **Smart Split Configuration**:
+   - Choose AI-Optimized Split for automatic ratio calculation
+   - Or use Manual Split with custom percentages
+   - View real-time sample counts and confidence scores
+4. **AI Parameter Optimization**:
+   - Review AI-suggested learning rates and batch sizes
+   - Configure LoRA rank (4-64) and alpha parameters
+   - View cost and time estimates
+5. Start training and monitor progress at `/finetune/:id`
+6. **Auto-Fine-tuning**: Enable automatic training upon dataset creation
+
+### External Data Import
+1. Click "External Import" from dashboard
+2. Select data source (Kaggle, URL, or file upload)
+3. **Data Transformation Pipeline**:
+   - Automatic format detection and schema mapping
+   - Comprehensive validation pipeline
+   - Text normalization and encoding handling
+   - Advanced deduplication algorithms
+4. Configure field mapping
+5. **Record Validation**: Required fields, text/token length, quality thresholds
+6. Run validation pipeline
+7. Create dataset automatically with quality scoring
+
+### Custom LLM Integration
+1. Go to `/llm-connections`
+2. Add new connection with API details
+3. Test connection
+4. Use in fine-tuning pipeline
+
+## Security Features
+
+### Authentication & Authorization
+- Email OTP authentication
+- Anonymous guest access
+- Role-based access control (Admin, User, Member)
+- Activity logging and audit trails
+
+### Data Protection
+- Secure content validation
+- Quality scoring with AI analysis
+- Duplicate detection and prevention
+- Comprehensive error handling
+- Real-time data synchronization
+
+### Privacy & Compliance
+- User activity tracking
+- Secure API integrations
+- Data export capabilities
+- Configurable access controls
+
+## Troubleshooting
+
+### Common Issues
+1. **Convex Connection Errors**:
+   - Verify environment variables
+   - Check Convex deployment status
+   - Ensure proper authentication setup
+
+2. **Authentication Issues**:
+   - Clear browser cache
+   - Verify email OTP delivery
+   - Check JWT configuration
+
+3. **Fine-tuning Failures**:
+   - Validate dataset format
+   - Check API key permissions
+   - Verify model availability
+
+4. **Performance Issues**:
+   - Optimize dataset size
+   - Use batch processing
+   - Monitor resource usage
+
+## Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
+
+### Development Guidelines
+- Follow TypeScript best practices
+- Use Shadcn UI components
+- Implement mobile-responsive design
+- Add Framer Motion animations
+- Include proper error handling
+- Write comprehensive tests
+
+## Tech Stack
+
+### Frontend
+- **React 19** with TypeScript
+- **Vite** for build tooling
+- **Tailwind CSS v4** for styling
+- **Shadcn UI** component library
+- **Framer Motion** for animations
+- **React Router v7** for navigation
+- **Three.js** for 3D graphics
+
+### Backend
+- **Convex** real-time serverless backend
+- **Convex Auth** for authentication
+- **Cron jobs** for automated tasks
+- **Internal actions** for background processing
+
+### AI Integrations
+- **OpenAI** (GPT-3.5, GPT-4) with live status polling and synchronization
+- **Google Gemini** for advanced quality analysis and cultural context
+- **Custom LLM** provider support with automatic provider inference
+- **LoRA** fine-tuning optimization with dynamic rank and alpha configuration
+- **Smart Split Technology** with AI-optimized dataset splitting
+- **Auto-Fine-tuning Pipeline** with seamless automation
+
+## Database Schema
 
 The application uses 11 Convex tables:
 - `users`: User accounts and roles
@@ -145,258 +398,56 @@ The application uses 11 Convex tables:
 - `import_pipelines`: Data import workflows
 - `field_mappings`: Field mapping templates
 
-## 🛣️ Application Routes
+## Application Routes
 
-- `/` - Landing page
+- `/` - Landing page with project overview
 - `/auth` - Authentication (sign in/sign up)
-- `/dashboard` - Main dashboard
-- `/content` - Content browser
-- `/content/new` - Add new content
-- `/content/:id` - Edit content
-- `/datasets` - Dataset browser
-- `/datasets/create` - Create dataset
+- `/dashboard` - Main dashboard with analytics
+- `/content` - Content browser and management
+- `/content/new` - Add new linguistic content
+- `/content/:id` - Edit existing content
+- `/datasets` - Dataset browser and management
+- `/datasets/create` - Create new dataset
 - `/finetune` - Fine-tuning jobs list
-- `/finetune/new` - Start fine-tuning
-- `/finetune/:id` - Job monitoring
-- `/results/:id` - Results comparison
-- `/llm-connections` - LLM connections management
-- `/external-import` - External dataset import
+- `/finetune/new` - Start new fine-tuning job
+- `/finetune/:id` - Monitor specific job
+- `/results/:id` - Compare model results
+- `/llm-connections` - Manage LLM connections
+- `/external-import` - Import external datasets
 
-## Setup
+## License
 
-This project is set up already and running on a cloud environment, as well as a convex development in the sandbox.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Environment Variables
+## Acknowledgments
 
-The project is set up with project specific CONVEX_DEPLOYMENT and VITE_CONVEX_URL environment variables on the client side.
+- **Convex** for real-time backend infrastructure
+- **OpenAI** for AI model APIs
+- **Google Gemini** for quality analysis
+- **Shadcn UI** for component library
+- **Framer Motion** for animation framework
+- **React community** for the ecosystem
 
-The convex server has a separate set of environment variables that are accessible by the convex backend.
+## Support
 
-Currently, these variables include auth-specific keys: JWKS, JWT_PRIVATE_KEY, and SITE_URL.
+For support, please:
+1. Check the troubleshooting guide above
+2. Review existing issues on GitHub
+3. Create a new issue with detailed information
+4. Contact the development team
 
+## Research Documentation
 
-# Using Authentication (Important!)
+For comprehensive information about low-resource language AI training and cultural preservation in AI models, please refer to our research documentation. This provides detailed insights into the challenges of training AI models for Indian languages and how Culture AI Suite addresses these limitations.
 
-You must follow these conventions when using authentication.
+## Contributors
 
-## Auth is already set up.
+* **Bhasha AI Lab Team**
+* **Nxtwave x GPT Buildathon Participants**
+* **Open Source Community Contributors**
 
-All convex authentication functions are already set up. The auth currently uses email OTP and anonymous users, but can support more.
+---
 
-The email OTP configuration is defined in `src/convex/auth/emailOtp.ts`. DO NOT MODIFY THIS FILE.
+Made with ❤️ for preserving linguistic diversity through AI
 
-Also, DO NOT MODIFY THESE AUTH FILES: `src/convex/auth.config.ts` and `src/convex/auth.ts`.
-
-## Using Convex Auth on the backend
-
-On the `src/convex/users.ts` file, you can use the `getCurrentUser` function to get the current user's data.
-
-## Using Convex Auth on the frontend
-
-The `/auth` page is already set up to use auth. Navigate to `/auth` for all log in / sign up sequences.
-
-You MUST use this hook to get user data. Never do this yourself without the hook:
-```typescript
-import { useAuth } from "@/hooks/use-auth";
-
-const { isLoading, isAuthenticated, user, signIn, signOut } = useAuth();
-```
-
-## Protected Routes
-
-When protecting a page, use the auth hooks to check for authentication and redirect to /auth.
-
-## Auth Page
-
-The auth page is defined in `src/pages/Auth.tsx`. Redirect authenticated pages and sign in / sign up to /auth.
-
-## Authorization
-
-You can perform authorization checks on the frontend and backend.
-
-On the frontend, you can use the `useAuth` hook to get the current user's data and authentication state.
-
-You should also be protecting queries, mutations, and actions at the base level, checking for authorization securely.
-
-## Adding a redirect after auth
-
-In `src/main.tsx`, you must add a redirect after auth URL to redirect to the correct dashboard/profile/page that should be created after authentication.
-
-# Frontend Conventions
-
-You will be using the Vite frontend with React 19, Tailwind v4, and Shadcn UI.
-
-Generally, pages should be in the `src/pages` folder, and components should be in the `src/components` folder.
-
-Shadcn primitives are located in the `src/components/ui` folder and should be used by default.
-
-## Page routing
-
-Your page component should go under the `src/pages` folder.
-
-When adding a page, update the react router configuration in `src/main.tsx` to include the new route you just added.
-
-## Shad CN conventions
-
-Follow these conventions when using Shad CN components, which you should use by default.
-- Remember to use "cursor-pointer" to make the element clickable
-- For title text, use the "tracking-tight font-bold" class to make the text more readable
-- Always make apps MOBILE RESPONSIVE. This is important
-- AVOID NESTED CARDS. Try and not to nest cards, borders, components, etc. Nested cards add clutter and make the app look messy.
-- AVOID SHADOWS. Avoid adding any shadows to components. stick with a thin border without the shadow.
-- Avoid skeletons; instead, use the loader2 component to show a spinning loading state when loading data.
-
-
-## Landing Pages
-
-You must always create good-looking designer-level styles to your application. 
-- Make it well animated and fit a certain "theme", ie neo brutalist, retro, neumorphism, glass morphism, etc
-
-Use known images and emojis from online.
-
-If the user is logged in already, show the get started button to say "Dashboard" or "Profile" instead to take them there.
-
-## Responsiveness and formatting
-
-Make sure pages are wrapped in a container to prevent the width stretching out on wide screens. Always make sure they are centered aligned and not off-center.
-
-Always make sure that your designs are mobile responsive. Verify the formatting to ensure it has correct max and min widths as well as mobile responsiveness.
-
-- Always create sidebars for protected dashboard pages and navigate between pages
-- Always create navbars for landing pages
-- On these bars, the created logo should be clickable and redirect to the index page
-
-## Animating with Framer Motion
-
-You must add animations to components using Framer Motion. It is already installed and configured in the project.
-
-To use it, import the `motion` component from `framer-motion` and use it to wrap the component you want to animate.
-
-
-### Other Items to animate
-- Fade in and Fade Out
-- Slide in and Slide Out animations
-- Rendering animations
-- Button clicks and UI elements
-
-Animate for all components, including on landing page and app pages.
-
-## Three JS Graphics
-
-Your app comes with three js by default. You can use it to create 3D graphics for landing pages, games, etc.
-
-
-## Colors
-
-You can override colors in: `src/index.css`
-
-This uses the oklch color format for tailwind v4.
-
-Always use these color variable names.
-
-Make sure all ui components are set up to be mobile responsive and compatible with both light and dark mode.
-
-Set theme using `dark` or `light` variables at the parent className.
-
-## Styling and Theming
-
-When changing the theme, always change the underlying theme of the shad cn components app-wide under `src/components/ui` and the colors in the index.css file.
-
-Avoid hardcoding in colors unless necessary for a use case, and properly implement themes through the underlying shad cn ui components.
-
-When styling, ensure buttons and clickable items have pointer-click on them (don't by default).
-
-Always follow a set theme style and ensure it is tuned to the user's liking.
-
-## Toasts
-
-You should always use toasts to display results to the user, such as confirmations, results, errors, etc.
-
-Use the shad cn Sonner component as the toaster. For example:
-
-```
-import { toast } from "sonner"
-
-import { Button } from "@/components/ui/button"
-export function SonnerDemo() {
-  return (
-    <Button
-      variant="outline"
-      onClick={() =>
-        toast("Event has been created", {
-          description: "Sunday, December 03, 2023 at 9:00 AM",
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-      }
-    >
-      Show Toast
-    </Button>
-  )
-}
-```
-
-Remember to import { toast } from "sonner". Usage: `toast("Event has been created.")`
-
-## Dialogs
-
-Always ensure your larger dialogs have a scroll in its content to ensure that its content fits the screen size. Make sure that the content is not cut off from the screen.
-
-Ideally, instead of using a new page, use a Dialog instead. 
-
-# Using the Convex backend
-
-You will be implementing the convex backend. Follow your knowledge of convex and the documentation to implement the backend.
-
-## The Convex Schema
-
-You must correctly follow the convex schema implementation.
-
-The schema is defined in `src/convex/schema.ts`.
-
-Do not include the `_id` and `_creationTime` fields in your queries (it is included by default for each table).
-Do not index `_creationTime` as it is indexed for you. Never have duplicate indexes.
-
-
-## Convex Actions: Using CRUD operations
-
-When running anything that involves external connections, you must use a convex action with "use node" at the top of the file.
-
-You cannot have queries or mutations in the same file as a "use node" action file. Thus, you must use pre-built queries and mutations in other files.
-
-You can also use the pre-installed internal crud functions for the database:
-
-```ts
-// in convex/users.ts
-import { crud } from "convex-helpers/server/crud";
-import schema from "./schema.ts";
-
-export const { create, read, update, destroy } = crud(schema, "users");
-
-// in some file, in an action:
-const user = await ctx.runQuery(internal.users.read, { id: userId });
-
-await ctx.runMutation(internal.users.update, {
-  id: userId,
-  patch: {
-    status: "inactive",
-  },
-});
-```
-
-
-## Common Convex Mistakes To Avoid
-
-When using convex, make sure:
-- Document IDs are referenced as `_id` field, not `id`.
-- Document ID types are referenced as `Id<"TableName">`, not `string`.
-- Document object types are referenced as `Doc<"TableName">`.
-- Keep schemaValidation to false in the schema file.
-- You must correctly type your code so that it passes the type checker.
-- You must handle null / undefined cases of your convex queries for both frontend and backend, or else it will throw an error that your data could be null or undefined.
-- Always use the `@/folder` path, with `@/convex/folder/file.ts` syntax for importing convex files.
-- This includes importing generated files like `@/convex/_generated/server`, `@/convex/_generated/api`
-- Remember to import functions like useQuery, useMutation, useAction, etc. from `convex/react`
-- NEVER have return type validators.
+**Culture AI Suite** - Empowering communities to build AI models for their languages

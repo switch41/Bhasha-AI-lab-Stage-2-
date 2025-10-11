@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Loader2, Database, Sparkles, BarChart3, Plus, FileText, Brain, TrendingUp, Plug, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { HeaderLogo } from "@/components/Logo";
 
 export default function Dashboard() {
   const { isLoading, isAuthenticated, user } = useAuth();
@@ -38,7 +39,7 @@ export default function Dashboard() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Logo" className="h-8 w-8 cursor-pointer" onClick={() => navigate("/")} />
+            <HeaderLogo onClick={() => navigate("/")} />
             <h1 className="text-2xl font-bold tracking-tight">Bhasha AI Lab</h1>
           </div>
           <div className="flex items-center gap-4">

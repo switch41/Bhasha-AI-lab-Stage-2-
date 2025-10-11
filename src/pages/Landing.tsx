@@ -8,6 +8,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { HeaderLogo } from "@/components/Logo";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Landing() {
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
+            <HeaderLogo onClick={() => navigate("/")} />
             <h1 className="text-xl font-bold tracking-tight">Bhasha AI Lab</h1>
           </div>
           <Button onClick={() => navigate(isAuthenticated ? "/dashboard" : "/auth")}>

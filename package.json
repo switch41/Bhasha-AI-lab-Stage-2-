@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:analyze": "tsc -b && vite build --mode analyze",
+    "build:production": "NODE_ENV=production tsc -b && vite build --mode production",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "vercel-build": "pnpm run build:production"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.86",
