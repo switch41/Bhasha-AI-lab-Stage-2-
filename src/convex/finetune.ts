@@ -132,6 +132,7 @@ export const create = mutation({
     }),
     provider: v.string(),
     model: v.string(),
+    connectionId: v.optional(v.id("llm_connections")),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -139,6 +140,16 @@ export const create = mutation({
 
     const dataset = await ctx.db.get(args.datasetId);
     if (!dataset) throw new Error("Dataset not found");
+
+    // Validate custom LLM connection if provider is custom
+    if (args.provider === "custom") {
+      if (!args.connectionId) throw new Error("Connection ID required for custom provider");
+      
+      const connection = await ctx.db.get(args.connectionId);
+      if (!connection) throw new Error("LLM connection not found");
+      if (connection.userId !== user._id) throw new Error("Not authorized to use this connection");
+      if (!connection.isActive) throw new Error("LLM connection is not active");
+    }
 
     // Calculate estimates
     const totalTokens = dataset.size * (dataset.metadata.avgTokens || 100) * args.parameters.epochs;
@@ -173,12 +184,19 @@ export const create = mutation({
       metadata: { datasetId: args.datasetId, provider: args.provider },
     });
 
-    // Schedule job submission for OpenAI
+    // Schedule job submission based on provider
     if (args.provider === "openai") {
       await ctx.scheduler.runAfter(0, (internal as any).providers_openai.submitJob, {
         jobId,
         datasetId: args.datasetId,
         model: args.model,
+        parameters: args.parameters,
+      });
+    } else if (args.provider === "custom" && args.connectionId) {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_custom.submitJob, {
+        jobId,
+        datasetId: args.datasetId,
+        connectionId: args.connectionId,
         parameters: args.parameters,
       });
     }

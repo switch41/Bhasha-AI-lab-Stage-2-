@@ -135,6 +135,21 @@ const schema = defineSchema(
       finetuneJobId: v.optional(v.id("finetune_jobs")),
       metadata: v.optional(v.any()),
     }).index("by_user", ["userId"]),
+
+    // Custom LLM connections
+    llm_connections: defineTable({
+      userId: v.id("users"),
+      name: v.string(),
+      apiEndpoint: v.string(),
+      authType: v.union(v.literal("bearer"), v.literal("api_key"), v.literal("none")),
+      apiKey: v.optional(v.string()),
+      dataFormat: v.union(v.literal("jsonl"), v.literal("json"), v.literal("csv")),
+      statusEndpoint: v.optional(v.string()),
+      modelIdentifier: v.optional(v.string()),
+      isActive: v.boolean(),
+      lastTested: v.optional(v.number()),
+      testStatus: v.optional(v.union(v.literal("success"), v.literal("failed"))),
+    }).index("by_user", ["userId"]),
   },
   {
     schemaValidation: false,
