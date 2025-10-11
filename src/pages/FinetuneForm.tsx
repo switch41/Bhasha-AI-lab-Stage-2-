@@ -32,12 +32,24 @@ export default function FinetuneForm() {
     selectedDatasetId ? { datasetId: selectedDatasetId } : "skip"
   );
 
+  const splitRecommendations = useQuery(
+    api.finetune.recommendSplit,
+    selectedDatasetId ? { datasetId: selectedDatasetId } : "skip"
+  );
+
   const [parameters, setParameters] = useState({
     learningRate: 0.00003,
     batchSize: 16,
     epochs: 3,
     loraRank: 8,
     loraAlpha: 16,
+  });
+
+  const [splitMode, setSplitMode] = useState<"smart" | "manual">("smart");
+  const [dataSplit, setDataSplit] = useState({
+    train: 0.8,
+    validation: 0.1,
+    test: 0.1,
   });
 
   const [isCreating, setIsCreating] = useState(false);
@@ -53,6 +65,12 @@ export default function FinetuneForm() {
       setParameters(recommendations.parameters);
     }
   }, [recommendations]);
+
+  useEffect(() => {
+    if (splitRecommendations && splitMode === "smart") {
+      setDataSplit(splitRecommendations.split);
+    }
+  }, [splitRecommendations, splitMode]);
 
   if (isLoading) {
     return (
@@ -75,6 +93,13 @@ export default function FinetuneForm() {
       return;
     }
 
+    // Validate split ratios
+    const totalSplit = dataSplit.train + dataSplit.validation + dataSplit.test;
+    if (Math.abs(totalSplit - 1.0) > 0.01) {
+      toast.error("Data split ratios must sum to 1.0 (100%)");
+      return;
+    }
+
     setIsCreating(true);
 
     try {
@@ -84,6 +109,7 @@ export default function FinetuneForm() {
         provider,
         model: provider === "custom" ? "custom" : model,
         connectionId: provider === "custom" && selectedConnectionId ? selectedConnectionId : undefined,
+        dataSplit,
       });
       toast.success("Fine-tuning job created successfully!");
       navigate(`/finetune/${jobId}`);
@@ -145,69 +171,173 @@ export default function FinetuneForm() {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="provider">Provider *</Label>
-                    <Select value={provider} onValueChange={setProvider}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="openai">OpenAI</SelectItem>
-                        <SelectItem value="anthropic">Anthropic</SelectItem>
-                        <SelectItem value="huggingface">Hugging Face</SelectItem>
-                        <SelectItem value="custom">Custom LLM</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {provider === "custom" ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="connection">LLM Connection *</Label>
-                      <div className="flex gap-2">
-                        <Select
-                          value={selectedConnectionId ?? undefined}
-                          onValueChange={(value) => setSelectedConnectionId(value as Id<"llm_connections">)}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select connection" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {llmConnections?.filter(c => c.isActive).map((conn) => (
-                              <SelectItem key={conn._id} value={conn._id}>
-                                {conn.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => navigate("/llm-connections")}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label htmlFor="model">Base Model *</Label>
-                      <Select value={model} onValueChange={setModel}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                          <SelectItem value="gpt-4">GPT-4</SelectItem>
-                          <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="baseModel">Base Model *</Label>
+                  <Select
+                    value={provider === "openai" ? model : selectedConnectionId ?? undefined}
+                    onValueChange={(value) => {
+                      if (value === "gpt-3.5-turbo" || value === "gpt-4") {
+                        setProvider("openai");
+                        setModel(value);
+                      } else {
+                        setProvider("custom");
+                        setSelectedConnectionId(value as Id<"llm_connections">);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select base model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</SelectItem>
+                      <SelectItem value="gpt-4">GPT-4 (OpenAI)</SelectItem>
+                      {llmConnections?.filter(c => c.isActive).map((conn) => (
+                        <SelectItem key={conn._id} value={conn._id}>
+                          {conn.name} (Custom)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                    <p className="text-xs text-muted-foreground">
+                      No custom LLM connections found.{" "}
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 text-xs"
+                        onClick={() => navigate("/llm-connections")}
+                      >
+                        Add one now
+                      </Button>
+                    </p>
                   )}
                 </div>
               </CardContent>
             </Card>
+
+            {selectedDatasetId && splitRecommendations && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Data Split Configuration
+                  </CardTitle>
+                  <CardDescription>
+                    Configure how your dataset is split for training, validation, and testing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Card
+                      className={`cursor-pointer transition-all ${
+                        splitMode === "smart"
+                          ? "border-primary ring-2 ring-primary"
+                          : ""
+                      }`}
+                      onClick={() => setSplitMode("smart")}
+                    >
+                      <CardContent className="pt-4 pb-4">
+                        <div className="flex items-center gap-1 mb-1">
+                          <Sparkles className="h-3 w-3 text-primary" />
+                          <h4 className="font-semibold text-sm">Smart Split</h4>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          AI-optimized split based on dataset size
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card
+                      className={`cursor-pointer transition-all ${
+                        splitMode === "manual"
+                          ? "border-primary ring-2 ring-primary"
+                          : ""
+                      }`}
+                      onClick={() => setSplitMode("manual")}
+                    >
+                      <CardContent className="pt-4 pb-4">
+                        <h4 className="font-semibold text-sm mb-1">Manual Split</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Configure your own split ratios
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {splitMode === "smart" ? (
+                    <div className="space-y-4 pt-4 border-t">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Training</Label>
+                          <div className="text-2xl font-bold">{(dataSplit.train * 100).toFixed(0)}%</div>
+                          <p className="text-xs text-muted-foreground">{splitRecommendations.sizes.train} samples</p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Validation</Label>
+                          <div className="text-2xl font-bold">{(dataSplit.validation * 100).toFixed(0)}%</div>
+                          <p className="text-xs text-muted-foreground">{splitRecommendations.sizes.validation} samples</p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs">Test</Label>
+                          <div className="text-2xl font-bold">{(dataSplit.test * 100).toFixed(0)}%</div>
+                          <p className="text-xs text-muted-foreground">{splitRecommendations.sizes.test} samples</p>
+                        </div>
+                      </div>
+                      <Card className="bg-muted/50">
+                        <CardContent className="pt-4 pb-4">
+                          <p className="text-sm">{splitRecommendations.reasoning.overall}</p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Confidence: {(splitRecommendations.confidence * 100).toFixed(0)}%
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pt-4 border-t">
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="trainSplit" className="text-xs">Training %</Label>
+                          <Input
+                            id="trainSplit"
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={dataSplit.train}
+                            onChange={(e) => setDataSplit({ ...dataSplit, train: parseFloat(e.target.value) || 0 })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="validationSplit" className="text-xs">Validation %</Label>
+                          <Input
+                            id="validationSplit"
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={dataSplit.validation}
+                            onChange={(e) => setDataSplit({ ...dataSplit, validation: parseFloat(e.target.value) || 0 })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="testSplit" className="text-xs">Test %</Label>
+                          <Input
+                            id="testSplit"
+                            type="number"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={dataSplit.test}
+                            onChange={(e) => setDataSplit({ ...dataSplit, test: parseFloat(e.target.value) || 0 })}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Total: {((dataSplit.train + dataSplit.validation + dataSplit.test) * 100).toFixed(0)}% (must equal 100%)
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {recommendations && (
               <Card>
