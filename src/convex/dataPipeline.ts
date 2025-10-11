@@ -215,8 +215,99 @@ export const validateData = internalMutation({
     data: v.any(),
   },
   handler: async (ctx, args) => {
-    // Placeholder - will be implemented with actual validation
-    return args.data;
+    const pipeline = await ctx.db.get(args.pipelineId);
+    if (!pipeline) throw new Error("Pipeline not found");
+
+    const validatedRecords: any[] = [];
+    const errors: string[] = [];
+
+    for (let i = 0; i < args.data.length; i++) {
+      const record = args.data[i];
+      
+      try {
+        // Validate required fields
+        if (!record.text || typeof record.text !== 'string') {
+          throw new Error(`Row ${i + 1}: Missing or invalid 'text' field`);
+        }
+        
+        if (!record.language || typeof record.language !== 'string') {
+          throw new Error(`Row ${i + 1}: Missing or invalid 'language' field`);
+        }
+        
+        if (!record.contentType || typeof record.contentType !== 'string') {
+          throw new Error(`Row ${i + 1}: Missing or invalid 'contentType' field`);
+        }
+
+        // Validate text length
+        if (record.text.length < 10) {
+          throw new Error(`Row ${i + 1}: Text too short (minimum 10 characters)`);
+        }
+        
+        if (record.text.length > 10000) {
+          throw new Error(`Row ${i + 1}: Text too long (maximum 10,000 characters)`);
+        }
+
+        // Validate token count (approximate)
+        const tokenCount = Math.ceil(record.text.length / 3);
+        if (tokenCount > 2000) {
+          throw new Error(`Row ${i + 1}: Token count exceeds maximum (2000 tokens)`);
+        }
+
+        // Validate quality score if present
+        if (record.qualityScore !== undefined) {
+          const score = parseFloat(record.qualityScore);
+          if (isNaN(score) || score < 0 || score > 10) {
+            throw new Error(`Row ${i + 1}: Invalid quality score (must be 0-10)`);
+          }
+          record.qualityScore = score;
+        } else {
+          record.qualityScore = pipeline.config.minQualityThreshold || 0;
+        }
+
+        // Validate content type
+        const validContentTypes = ['text', 'proverb', 'narrative'];
+        if (!validContentTypes.includes(record.contentType)) {
+          record.contentType = pipeline.config.defaultContentType || 'text';
+        }
+
+        // Validate language (Indian languages)
+        const validLanguages = [
+          'hindi', 'bengali', 'tamil', 'telugu', 'marathi', 
+          'gujarati', 'kannada', 'malayalam', 'punjabi', 'odia'
+        ];
+        if (!validLanguages.includes(record.language.toLowerCase())) {
+          throw new Error(`Row ${i + 1}: Unsupported language '${record.language}'`);
+        }
+
+        validatedRecords.push(record);
+      } catch (error: any) {
+        errors.push(error.message);
+        
+        // Stop if too many errors
+        if (errors.length > 100) {
+          errors.push("Validation stopped: Too many errors (>100)");
+          break;
+        }
+      }
+    }
+
+    // Update pipeline with error log
+    if (errors.length > 0) {
+      await ctx.db.patch(args.pipelineId, {
+        errorLog: errors,
+      });
+    }
+
+    // Update external dataset with progress
+    const externalDataset = await ctx.db.get(pipeline.externalDatasetId);
+    if (externalDataset) {
+      await ctx.db.patch(pipeline.externalDatasetId, {
+        totalRecords: args.data.length,
+        processedRecords: validatedRecords.length,
+      });
+    }
+
+    return validatedRecords;
   },
 });
 
@@ -227,8 +318,39 @@ export const ingestContent = internalMutation({
     data: v.any(),
   },
   handler: async (ctx, args) => {
-    // Placeholder - will be implemented with actual ingestion
-    return [];
+    const pipeline = await ctx.db.get(args.pipelineId);
+    if (!pipeline) throw new Error("Pipeline not found");
+
+    const contentIds: any[] = [];
+
+    for (const record of args.data) {
+      try {
+        const contentId = await ctx.db.insert("content", {
+          userId: pipeline.userId,
+          text: record.text,
+          language: record.language,
+          contentType: record.contentType,
+          region: record.region || undefined,
+          category: record.category || undefined,
+          source: record.source || "external_import",
+          dialect: record.dialect || undefined,
+          culturalContext: record.culturalContext || undefined,
+          status: pipeline.config.defaultStatus as "draft" | "published",
+          qualityScore: record.qualityScore || 0,
+        });
+
+        contentIds.push(contentId);
+      } catch (error: any) {
+        console.error("Failed to insert content:", error);
+      }
+    }
+
+    // Update pipeline with content IDs
+    await ctx.db.patch(args.pipelineId, {
+      contentIds,
+    });
+
+    return contentIds;
   },
 });
 
@@ -239,8 +361,73 @@ export const createDatasetFromPipeline = internalMutation({
     contentIds: v.array(v.id("content")),
   },
   handler: async (ctx, args) => {
-    // Placeholder - will be implemented
-    return undefined;
+    const pipeline = await ctx.db.get(args.pipelineId);
+    if (!pipeline) throw new Error("Pipeline not found");
+
+    const externalDataset = await ctx.db.get(pipeline.externalDatasetId);
+    if (!externalDataset) throw new Error("External dataset not found");
+
+    // Get content for analysis
+    const content = await Promise.all(
+      args.contentIds.map((id) => ctx.db.get(id))
+    );
+    const validContent = content.filter(Boolean);
+
+    if (validContent.length === 0) {
+      throw new Error("No valid content to create dataset");
+    }
+
+    // Calculate metrics
+    const avgQuality = validContent.reduce((sum, c) => sum + c!.qualityScore, 0) / validContent.length;
+    const tokenCounts = validContent.map(c => Math.ceil(c!.text.length / 3));
+    const avgTokens = Math.round(tokenCounts.reduce((a, b) => a + b, 0) / tokenCounts.length);
+
+    // Determine language and content type from majority
+    const languages = validContent.map(c => c!.language);
+    const language = languages.sort((a, b) =>
+      languages.filter(v => v === a).length - languages.filter(v => v === b).length
+    ).pop() || "mixed";
+
+    const contentTypes = validContent.map(c => c!.contentType);
+    const contentType = contentTypes.sort((a, b) =>
+      contentTypes.filter(v => v === a).length - contentTypes.filter(v => v === b).length
+    ).pop() || "mixed";
+
+    // Create dataset
+    const datasetName = pipeline.config.datasetConfig?.name || externalDataset.name;
+    
+    const datasetId = await ctx.db.insert("datasets", {
+      name: datasetName,
+      language,
+      contentType,
+      size: validContent.length,
+      entryIds: args.contentIds,
+      qualityScore: avgQuality,
+      metadata: {
+        avgTokens,
+        regions: [...new Set(validContent.map(c => c!.region).filter(Boolean))],
+        categories: [...new Set(validContent.map(c => c!.category).filter(Boolean))],
+        tokenDistribution: {
+          avg: avgTokens,
+          median: avgTokens,
+          min: Math.min(...tokenCounts),
+          max: Math.max(...tokenCounts),
+          stdDev: 0,
+          p25: avgTokens,
+          p75: avgTokens,
+          p95: avgTokens,
+          distribution: {
+            short: tokenCounts.filter(t => t < 50).length,
+            medium: tokenCounts.filter(t => t >= 50 && t < 200).length,
+            long: tokenCounts.filter(t => t >= 200).length,
+          },
+        },
+      },
+      status: "ready",
+      userId: pipeline.userId,
+    });
+
+    return datasetId;
   },
 });
 
@@ -251,8 +438,75 @@ export const startFinetuning = internalMutation({
     datasetId: v.id("datasets"),
   },
   handler: async (ctx, args) => {
-    // Placeholder - will be implemented
-    return undefined;
+    const pipeline = await ctx.db.get(args.pipelineId);
+    if (!pipeline) throw new Error("Pipeline not found");
+
+    const dataset = await ctx.db.get(args.datasetId);
+    if (!dataset) throw new Error("Dataset not found");
+
+    const finetuneConfig = pipeline.config.finetuneConfig;
+    if (!finetuneConfig) return undefined;
+
+    // Calculate AI-optimized parameters
+    const datasetSize = dataset.size;
+    const tokenDist = dataset.metadata.tokenDistribution;
+    const avgTokens = tokenDist?.avg || dataset.metadata.avgTokens || 100;
+
+    const learningRate = datasetSize < 1000 ? 5e-5 : datasetSize < 5000 ? 3e-5 : 2e-5;
+    const batchSize = datasetSize < 1000 ? 8 : datasetSize < 5000 ? 16 : 32;
+    const epochs = avgTokens < 50 ? 5 : avgTokens < 100 ? 4 : 3;
+    const loraRank = datasetSize < 500 ? 4 : datasetSize < 2000 ? 8 : 16;
+    const loraAlpha = loraRank * 2;
+
+    const totalTokens = datasetSize * avgTokens * epochs;
+    const estimatedCost = (totalTokens / 1000) * 0.008;
+    const estimatedTimeMinutes = Math.ceil((datasetSize * epochs) / 1000 * 60);
+
+    // Create fine-tuning job
+    const jobId = await ctx.db.insert("finetune_jobs", {
+      userId: pipeline.userId,
+      datasetId: args.datasetId,
+      status: "pending",
+      parameters: {
+        learningRate,
+        batchSize,
+        epochs,
+        loraRank,
+        loraAlpha,
+      },
+      provider: finetuneConfig.provider || "openai",
+      model: finetuneConfig.model || "gpt-3.5-turbo",
+      providerJobId: undefined,
+      modelId: undefined,
+      metrics: {
+        loss: [],
+        steps: 0,
+        currentEpoch: 0,
+      },
+      results: undefined,
+      estimatedCost,
+      estimatedTimeMinutes,
+      completedAt: undefined,
+    });
+
+    // Schedule job submission based on provider
+    if (finetuneConfig.provider === "openai") {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_openai.submitJob, {
+        jobId,
+        datasetId: args.datasetId,
+        model: finetuneConfig.model || "gpt-3.5-turbo",
+        parameters: { learningRate, batchSize, epochs, loraRank, loraAlpha },
+      });
+    } else if (finetuneConfig.provider === "custom" && finetuneConfig.connectionId) {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_custom.submitJob, {
+        jobId,
+        datasetId: args.datasetId,
+        connectionId: finetuneConfig.connectionId,
+        parameters: { learningRate, batchSize, epochs, loraRank, loraAlpha },
+      });
+    }
+
+    return jobId;
   },
 });
 
