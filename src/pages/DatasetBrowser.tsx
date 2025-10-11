@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Database, Download, Eye, Filter, ArrowLeft } from "lucide-react";
+import { Loader2, Database, Download, Eye, Filter, ArrowLeft, Link as LinkIcon, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -31,6 +31,8 @@ export default function DatasetBrowser() {
     minQuality: minQuality > 0 ? minQuality : undefined,
     minSize: minSize > 0 ? minSize : undefined,
   });
+
+  const llmConnections = useQuery(api.llmConnections.list, {});
 
   const previewData = useQuery(
     api.datasets.preview,
@@ -63,6 +65,9 @@ export default function DatasetBrowser() {
     ? datasets.reduce((sum, d) => sum + d.qualityScore, 0) / datasets.length
     : 0;
 
+  const activeLLMConnections = llmConnections?.filter(c => c.isActive).length || 0;
+  const totalLLMConnections = llmConnections?.length || 0;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -74,10 +79,20 @@ export default function DatasetBrowser() {
             </Button>
             <h1 className="text-2xl font-bold tracking-tight">Dataset Browser</h1>
           </div>
-          <Button onClick={() => navigate("/datasets/create")}>
-            <Database className="h-4 w-4" />
-            Create Dataset
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => navigate("/llm-connections")}>
+              <LinkIcon className="h-4 w-4" />
+              LLM Connections
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/external-import")}>
+              <Database className="h-4 w-4" />
+              Import Data
+            </Button>
+            <Button onClick={() => navigate("/datasets/create")}>
+              <Database className="h-4 w-4" />
+              Create Dataset
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -87,6 +102,43 @@ export default function DatasetBrowser() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
+          {/* Data Source Connection Status */}
+          <Card className="mb-6 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <LinkIcon className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">LLM Connections</p>
+                      <p className="text-xs text-muted-foreground">
+                        {activeLLMConnections} active / {totalLLMConnections} total
+                      </p>
+                    </div>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Auto Fine-tuning</p>
+                      <p className="text-xs text-muted-foreground">
+                        Available for new datasets
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/llm-connections")}>
+                    Manage Connections
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => navigate("/external-import")}>
+                    Import External Data
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Card>
