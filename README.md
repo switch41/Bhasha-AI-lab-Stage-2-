@@ -2,6 +2,19 @@
 
 Culture AI Suite is a comprehensive platform designed to build and fine-tune AI models for low-resource Indian languages. This application empowers communities to contribute linguistic content, create curated datasets, and train custom AI models while preserving cultural and linguistic diversity.
 
+## Key Highlights
+
+🤖 **Fully Automated LLM Training**: Culture AI Suite automatically fine-tunes and trains language models with zero manual intervention. Simply create a dataset, and the system handles the entire training pipeline - from parameter optimization to job submission and monitoring.
+
+⚡ **End-to-End Automation**: The platform features a complete automated workflow:
+- Dataset creation triggers automatic fine-tuning jobs
+- AI-optimized parameters are calculated automatically
+- Jobs are submitted to OpenAI or custom LLM providers in the background
+- Real-time monitoring via automated cron jobs (every 5 minutes)
+- Status updates and metrics are synchronized automatically
+
+🎯 **Smart AI Optimization**: Advanced algorithms analyze your dataset to recommend optimal training parameters, data splits, and LoRA configurations, ensuring the best possible model performance.
+
 ## Features
 
 ### 1. Authentication & User Management
@@ -65,7 +78,12 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
   - Real-time sample count display
   - Reasoning and confidence scores
 - **Manual Parameter Configuration**: Full control over hyperparameters
-- **Auto-Fine-tuning**: Trigger training upon dataset creation
+- **Automatic Fine-tuning & Training**:
+  - **Auto-Fine-tuning**: Automatically trigger training upon dataset creation
+  - **Automated LLM Training**: Complete end-to-end training pipeline without manual intervention
+  - **Background Processing**: Jobs run asynchronously with real-time status updates
+  - **Smart Job Scheduling**: Automatic job submission to OpenAI or custom LLM providers
+  - **Continuous Monitoring**: Automated polling and status synchronization via cron jobs
 
 ### 5. Job Monitoring & Tracking
 - **Real-time Job Tracking**: Monitor progress, metrics, and status updates
@@ -142,13 +160,18 @@ Culture AI Suite is a comprehensive platform designed to build and fine-tune AI 
 
 ### 11. Backend Infrastructure
 - **Convex Backend**: Real-time database and server functions
-- **Cron Jobs**: Automated job polling (every 5 minutes)
+- **Automated Training Pipeline**:
+  - **Automatic Job Submission**: Jobs are automatically submitted to providers upon creation
+  - **Background Processing**: Training runs asynchronously without blocking user actions
+  - **Real-time Synchronization**: Live status updates from OpenAI and custom providers
+- **Cron Jobs**: Automated job polling (every 5 minutes) for continuous monitoring
 - **Provider Integrations**:
-  - OpenAI (GPT-3.5, GPT-4)
+  - OpenAI (GPT-3.5, GPT-4) - Automatic fine-tuning API integration
   - Google Gemini (quality analysis)
-  - Custom LLM providers
-- **Internal Actions**: Scheduled background tasks
-- **Data Export**: JSONL format for training
+  - Custom LLM providers with flexible API support
+- **Internal Actions**: Scheduled background tasks for job management
+- **Data Export**: JSONL format for training with automatic formatting
+- **Job Orchestration**: Complete automation from dataset creation to model deployment
 
 ## Tech Stack
 
