@@ -31,7 +31,8 @@ export default function DatasetForm() {
     maxTextLength: 10000,
     normMinQuality: 0,
     autoFinetune: false,
-    provider: "openai",
+    finetuneMode: "auto" as "manual" | "auto",
+    provider: "openai" as "openai" | "custom",
     model: "gpt-3.5-turbo",
     connectionId: "",
   });
@@ -320,34 +321,34 @@ export default function DatasetForm() {
                           <div className="grid grid-cols-2 gap-3">
                             <Card
                               className={`cursor-pointer transition-all ${
-                                formData.provider === "manual"
+                                formData.finetuneMode === "manual"
                                   ? "border-primary ring-2 ring-primary"
                                   : ""
                               }`}
                               onClick={() =>
                                 setFormData({
                                   ...formData,
-                                  provider: "manual",
+                                  finetuneMode: "manual",
                                 })
                               }
                             >
                               <CardContent className="pt-4 pb-4">
                                 <h4 className="font-semibold text-sm mb-1">Manual</h4>
                                 <p className="text-xs text-muted-foreground">
-                                  Configure parameters in fine-tuning wizard
+                                  Configure parameters yourself
                                 </p>
                               </CardContent>
                             </Card>
                             <Card
                               className={`cursor-pointer transition-all ${
-                                formData.provider !== "manual"
+                                formData.finetuneMode === "auto"
                                   ? "border-primary ring-2 ring-primary"
                                   : ""
                               }`}
                               onClick={() =>
                                 setFormData({
                                   ...formData,
-                                  provider: "openai",
+                                  finetuneMode: "auto",
                                 })
                               }
                             >
@@ -364,8 +365,75 @@ export default function DatasetForm() {
                           </div>
                         </div>
 
-                        {formData.provider === "manual" ? (
+                        {formData.finetuneMode === "manual" ? (
                           <div className="space-y-4 pt-4 border-t">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="manualProvider">Provider</Label>
+                                <Select
+                                  value={formData.provider}
+                                  onValueChange={(value: "openai" | "custom") => setFormData({ ...formData, provider: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="openai">OpenAI</SelectItem>
+                                    <SelectItem value="custom">Custom LLM</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {formData.provider === "custom" ? (
+                                <div className="space-y-2">
+                                  <Label htmlFor="manualConnection">LLM Connection</Label>
+                                  <Select
+                                    value={formData.connectionId}
+                                    onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select connection" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {llmConnections?.filter(c => c.isActive).map((conn) => (
+                                        <SelectItem key={conn._id} value={conn._id}>
+                                          {conn.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                                    <p className="text-xs text-muted-foreground">
+                                      No active connections.{" "}
+                                      <Button
+                                        variant="link"
+                                        className="h-auto p-0 text-xs"
+                                        onClick={() => navigate("/llm-connections")}
+                                      >
+                                        Add one now
+                                      </Button>
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="space-y-2">
+                                  <Label htmlFor="manualModel">Base Model</Label>
+                                  <Select
+                                    value={formData.model}
+                                    onValueChange={(value) => setFormData({ ...formData, model: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                                      <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+                            </div>
+
                             <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-2">
@@ -433,7 +501,7 @@ export default function DatasetForm() {
                                 <Label htmlFor="provider">Provider</Label>
                                 <Select
                                   value={formData.provider}
-                                  onValueChange={(value) => setFormData({ ...formData, provider: value })}
+                                  onValueChange={(value: "openai" | "custom") => setFormData({ ...formData, provider: value })}
                                 >
                                   <SelectTrigger>
                                     <SelectValue />

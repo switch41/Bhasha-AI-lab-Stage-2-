@@ -97,6 +97,12 @@ export default function DatasetBrowser() {
 
   const handleStartFineTuning = (datasetId: Id<"datasets">, mode: "manual" | "auto") => {
     if (mode === "manual") {
+      // Validate custom LLM selection if needed
+      if (selectedProvider === "custom" && !selectedConnection) {
+        toast.error("Please select a custom LLM connection");
+        return;
+      }
+
       // Pass manual parameters as URL params
       const params = new URLSearchParams({
         datasetId,
@@ -106,6 +112,16 @@ export default function DatasetBrowser() {
         loraRank: manualParams.loraRank.toString(),
         loraAlpha: manualParams.loraAlpha.toString(),
       });
+
+      // Add provider and model/connection info
+      if (selectedProvider === "custom") {
+        params.append("provider", "custom");
+        params.append("connectionId", selectedConnection);
+      } else {
+        params.append("provider", "openai");
+        params.append("model", selectedModel);
+      }
+
       navigate(`/finetune/new?${params.toString()}`);
     } else {
       // Build query params for AI-optimized mode
@@ -450,6 +466,73 @@ export default function DatasetBrowser() {
               {/* Manual Parameters (only for Manual mode) */}
               {finetuneMode === "manual" && (
                 <div className="space-y-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <Label>Provider</Label>
+                    <Select value={selectedProvider} onValueChange={(value: any) => setSelectedProvider(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI</SelectItem>
+                        <SelectItem value="custom">Custom LLM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedProvider === "openai" ? (
+                    <div className="space-y-2">
+                      <Label>Base Model</Label>
+                      <Select value={selectedModel} onValueChange={setSelectedModel}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                          <SelectItem value="gpt-4">GPT-4</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label>Custom LLM Connection</Label>
+                      <Select value={selectedConnection} onValueChange={setSelectedConnection}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select connection" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {llmConnections && llmConnections.length > 0 ? (
+                            llmConnections
+                              .filter((conn) => conn.isActive)
+                              .map((conn) => (
+                                <SelectItem key={conn._id} value={conn._id}>
+                                  {conn.name}
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              No active connections
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      {(!llmConnections || llmConnections.length === 0) && (
+                        <p className="text-xs text-muted-foreground">
+                          No custom LLM connections found.{" "}
+                          <Button
+                            variant="link"
+                            className="h-auto p-0 text-xs"
+                            onClick={() => {
+                              setConfigDatasetId(null);
+                              navigate("/llm-connections");
+                            }}
+                          >
+                            Add one now
+                          </Button>
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
