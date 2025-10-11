@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { getCurrentUser } from "./users";
 
 // AI Parameter Optimizer
@@ -123,6 +124,16 @@ export const create = mutation({
       metadata: { datasetId: args.datasetId, provider: args.provider },
     });
 
+    // Schedule job submission for OpenAI
+    if (args.provider === "openai") {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_openai.submitJob, {
+        jobId,
+        datasetId: args.datasetId,
+        model: args.model,
+        parameters: args.parameters,
+      });
+    }
+
     return jobId;
   },
 });
@@ -158,7 +169,7 @@ export const listJobs = query({
 });
 
 // Update job status (internal use)
-export const updateStatus = mutation({
+export const updateStatus = internalMutation({
   args: {
     jobId: v.id("finetune_jobs"),
     status: v.string(),
@@ -198,11 +209,38 @@ export const cancel = mutation({
     if (!job) throw new Error("Job not found");
     if (job.userId !== user._id) throw new Error("Not authorized");
 
+    // Cancel on provider if running
+    if (job.status === "running" && job.providerJobId && job.provider === "openai") {
+      await ctx.scheduler.runAfter(0, (internal as any).providers_openai.cancelJob, {
+        providerJobId: job.providerJobId,
+      });
+    }
+
     await ctx.db.patch(args.jobId, {
       status: "cancelled",
       completedAt: Date.now(),
     });
 
     return args.jobId;
+  },
+});
+
+// Poll running jobs (called by cron)
+export const pollRunningJobs = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const runningJobs = await ctx.db
+      .query("finetune_jobs")
+      .filter((q) => q.eq(q.field("status"), "running"))
+      .collect();
+
+    for (const job of runningJobs) {
+      if (job.providerJobId && job.provider === "openai") {
+        await ctx.scheduler.runAfter(0, (internal as any).providers_openai.pollJobStatus, {
+          jobId: job._id,
+          providerJobId: job.providerJobId,
+        });
+      }
+    }
   },
 });

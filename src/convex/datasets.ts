@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalQuery } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
 // Create dataset from content
@@ -85,8 +85,16 @@ export const list = query({
   },
 });
 
-// Get dataset
-export const get = query({
+// Get dataset (public - for frontend)
+export const getById = query({
+  args: { id: v.id("datasets") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+// Get dataset (internal - for backend)
+export const get = internalQuery({
   args: { id: v.id("datasets") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -139,8 +147,8 @@ export const stats = query({
   },
 });
 
-// Export dataset (returns data for download)
-export const exportData = query({
+// Export dataset (returns data for download) - internal
+export const exportData = internalQuery({
   args: {
     id: v.id("datasets"),
     format: v.union(v.literal("jsonl"), v.literal("csv")),
