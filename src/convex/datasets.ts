@@ -139,6 +139,13 @@ export const create = mutation({
     contentType: v.optional(v.string()),
     minQualityScore: v.optional(v.number()),
     contentIds: v.optional(v.array(v.id("content"))),
+    autoNormalize: v.optional(v.boolean()),
+    normalizationOptions: v.optional(v.object({
+      removeDuplicates: v.optional(v.boolean()),
+      minTextLength: v.optional(v.number()),
+      maxTextLength: v.optional(v.number()),
+      minQualityScore: v.optional(v.number()),
+    })),
     autoFinetune: v.optional(v.boolean()),
     finetuneConfig: v.optional(v.object({
       provider: v.string(),
@@ -167,20 +174,47 @@ export const create = mutation({
       content = content.filter((c) => args.contentIds!.includes(c._id));
     }
 
-    // Auto-deduplication within dataset
-    const uniqueContent: any[] = [];
-    const seenTexts = new Set<string>();
-    
-    for (const item of content) {
-      const normalizedText = item.text.toLowerCase().trim();
-      if (!seenTexts.has(normalizedText)) {
-        seenTexts.add(normalizedText);
-        uniqueContent.push(item);
+    // Apply normalization options if auto-normalize is enabled
+    let validContent = content;
+    if (args.autoNormalize && args.normalizationOptions) {
+      const options = args.normalizationOptions;
+      
+      // Filter by text length
+      if (options.minTextLength) {
+        validContent = validContent.filter(c => c.text.length >= options.minTextLength!);
+      }
+      if (options.maxTextLength) {
+        validContent = validContent.filter(c => c.text.length <= options.maxTextLength!);
+      }
+      
+      // Filter by quality score
+      if (options.minQualityScore) {
+        validContent = validContent.filter(c => c.qualityScore >= options.minQualityScore!);
       }
     }
 
-    if (uniqueContent.length < content.length) {
-      console.log(`Removed ${content.length - uniqueContent.length} duplicate entries from dataset`);
+    // Auto-deduplication within dataset (always applied or if specified)
+    const uniqueContent: any[] = [];
+    const seenTexts = new Set<string>();
+    
+    const shouldDeduplicate = !args.autoNormalize || 
+                              !args.normalizationOptions || 
+                              args.normalizationOptions.removeDuplicates !== false;
+    
+    if (shouldDeduplicate) {
+      for (const item of validContent) {
+        const normalizedText = item.text.toLowerCase().trim();
+        if (!seenTexts.has(normalizedText)) {
+          seenTexts.add(normalizedText);
+          uniqueContent.push(item);
+        }
+      }
+      
+      if (uniqueContent.length < validContent.length) {
+        console.log(`Removed ${validContent.length - uniqueContent.length} duplicate entries from dataset`);
+      }
+    } else {
+      uniqueContent.push(...validContent);
     }
 
     const entryIds = uniqueContent.map((c) => c._id);
