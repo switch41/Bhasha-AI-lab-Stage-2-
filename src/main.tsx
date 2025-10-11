@@ -12,6 +12,9 @@ import Landing from "./pages/Landing.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import ContentBrowser from "./pages/ContentBrowser.tsx";
+import ContentForm from "./pages/ContentForm.tsx";
+import DatasetForm from "./pages/DatasetForm.tsx";
+import FinetuneForm from "./pages/FinetuneForm.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -54,6 +57,10 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/content" element={<ContentBrowser />} />
+            <Route path="/content/new" element={<ContentForm />} />
+            <Route path="/content/:id" element={<ContentForm />} />
+            <Route path="/datasets/create" element={<DatasetForm />} />
+            <Route path="/finetune/new" element={<FinetuneForm />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
