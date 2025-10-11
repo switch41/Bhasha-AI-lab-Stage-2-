@@ -384,54 +384,44 @@ export default function DatasetForm() {
                                 </Select>
                               </div>
 
-                              {formData.provider === "custom" ? (
-                                <div className="space-y-2">
-                                  <Label htmlFor="manualConnection">LLM Connection</Label>
-                                  <Select
-                                    value={formData.connectionId}
-                                    onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select connection" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {llmConnections?.filter(c => c.isActive).map((conn) => (
-                                        <SelectItem key={conn._id} value={conn._id}>
-                                          {conn.name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
-                                    <p className="text-xs text-muted-foreground">
-                                      No active connections.{" "}
-                                      <Button
-                                        variant="link"
-                                        className="h-auto p-0 text-xs"
-                                        onClick={() => navigate("/llm-connections")}
-                                      >
-                                        Add one now
-                                      </Button>
-                                    </p>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  <Label htmlFor="manualModel">Base Model</Label>
-                                  <Select
-                                    value={formData.model}
-                                    onValueChange={(value) => setFormData({ ...formData, model: value })}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                                      <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              )}
+                              <div className="space-y-2">
+                                <Label htmlFor="baseModel">Base Model</Label>
+                                <Select
+                                  value={formData.provider === "openai" ? formData.model : formData.connectionId}
+                                  onValueChange={(value) => {
+                                    if (value === "gpt-3.5-turbo" || value === "gpt-4") {
+                                      setFormData({ ...formData, provider: "openai", model: value });
+                                    } else {
+                                      setFormData({ ...formData, provider: "custom", connectionId: value });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select base model" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</SelectItem>
+                                    <SelectItem value="gpt-4">GPT-4 (OpenAI)</SelectItem>
+                                    {llmConnections?.filter(c => c.isActive).map((conn) => (
+                                      <SelectItem key={conn._id} value={conn._id}>
+                                        {conn.name} (Custom)
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                                  <p className="text-xs text-muted-foreground">
+                                    No custom LLM connections found.{" "}
+                                    <Button
+                                      variant="link"
+                                      className="h-auto p-0 text-xs"
+                                      onClick={() => navigate("/llm-connections")}
+                                    >
+                                      Add one now
+                                    </Button>
+                                  </p>
+                                )}
+                              </div>
                             </div>
 
                             <Label className="text-sm font-semibold">Fine-tuning Parameters</Label>
@@ -513,54 +503,44 @@ export default function DatasetForm() {
                                 </Select>
                               </div>
 
-                              {formData.provider === "custom" ? (
-                                <div className="space-y-2">
-                                  <Label htmlFor="connection">LLM Connection</Label>
-                                  <Select
-                                    value={formData.connectionId}
-                                    onValueChange={(value) => setFormData({ ...formData, connectionId: value })}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select connection" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {llmConnections?.filter(c => c.isActive).map((conn) => (
-                                        <SelectItem key={conn._id} value={conn._id}>
-                                          {conn.name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
-                                    <p className="text-xs text-muted-foreground">
-                                      No active connections.{" "}
-                                      <Button
-                                        variant="link"
-                                        className="h-auto p-0 text-xs"
-                                        onClick={() => navigate("/llm-connections")}
-                                      >
-                                        Add one now
-                                      </Button>
-                                    </p>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  <Label htmlFor="model">Base Model</Label>
-                                  <Select
-                                    value={formData.model}
-                                    onValueChange={(value) => setFormData({ ...formData, model: value })}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                                      <SelectItem value="gpt-4">GPT-4</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              )}
+                              <div className="space-y-2">
+                                <Label htmlFor="baseModel">Base Model</Label>
+                                <Select
+                                  value={formData.provider === "openai" ? formData.model : formData.connectionId}
+                                  onValueChange={(value) => {
+                                    if (value === "gpt-3.5-turbo" || value === "gpt-4") {
+                                      setFormData({ ...formData, provider: "openai", model: value });
+                                    } else {
+                                      setFormData({ ...formData, provider: "custom", connectionId: value });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select base model" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</SelectItem>
+                                    <SelectItem value="gpt-4">GPT-4 (OpenAI)</SelectItem>
+                                    {llmConnections?.filter(c => c.isActive).map((conn) => (
+                                      <SelectItem key={conn._id} value={conn._id}>
+                                        {conn.name} (Custom)
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {(!llmConnections || llmConnections.filter(c => c.isActive).length === 0) && (
+                                  <p className="text-xs text-muted-foreground">
+                                    No custom LLM connections found.{" "}
+                                    <Button
+                                      variant="link"
+                                      className="h-auto p-0 text-xs"
+                                      onClick={() => navigate("/llm-connections")}
+                                    >
+                                      Add one now
+                                    </Button>
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         )}
