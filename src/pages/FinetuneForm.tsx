@@ -121,7 +121,7 @@ export default function FinetuneForm() {
                 <div className="space-y-2">
                   <Label htmlFor="dataset">Dataset *</Label>
                   <Select
-                    value={selectedDatasetId || ""}
+                    value={selectedDatasetId ?? undefined}
                     onValueChange={(value) => setSelectedDatasetId(value as Id<"datasets">)}
                     required
                   >
