@@ -15,6 +15,9 @@ import ContentBrowser from "./pages/ContentBrowser.tsx";
 import ContentForm from "./pages/ContentForm.tsx";
 import DatasetForm from "./pages/DatasetForm.tsx";
 import FinetuneForm from "./pages/FinetuneForm.tsx";
+import DatasetBrowser from "./pages/DatasetBrowser.tsx";
+import FinetuneJobsList from "./pages/FinetuneJobsList.tsx";
+import JobMonitoring from "./pages/JobMonitoring.tsx";
 import "./types/global.d.ts";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
@@ -60,7 +63,10 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/content/new" element={<ContentForm />} />
             <Route path="/content/:id" element={<ContentForm />} />
             <Route path="/datasets/create" element={<DatasetForm />} />
+            <Route path="/datasets" element={<DatasetBrowser />} />
             <Route path="/finetune/new" element={<FinetuneForm />} />
+            <Route path="/finetune/:id" element={<JobMonitoring />} />
+            <Route path="/finetune" element={<FinetuneJobsList />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

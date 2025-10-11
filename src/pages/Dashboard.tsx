@@ -167,8 +167,15 @@ export default function Dashboard() {
             {/* Recent Jobs */}
             <Card>
               <CardHeader>
-                <CardTitle>Fine-tuning Jobs</CardTitle>
-                <CardDescription>Training progress</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Fine-tuning Jobs</CardTitle>
+                    <CardDescription>Training progress</CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => navigate("/finetune")}>
+                    View All
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {!finetuneJobs || finetuneJobs.length === 0 ? (
