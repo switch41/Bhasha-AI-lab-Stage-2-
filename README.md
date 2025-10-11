@@ -1,4 +1,4 @@
-# Bhasha AI Lab : Advanced AI Model Training Platform and culyural preserver
+# Bhasha AI Lab : Advanced AI Model Training Platform and cultural preserver
 
   Bhasha AI Lab is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
 
