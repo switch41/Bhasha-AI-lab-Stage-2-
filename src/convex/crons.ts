@@ -11,4 +11,13 @@ crons.interval(
   {}
 );
 
+// Process pending test prompt evaluations every 2 minutes
+// TODO: Re-enable once types are generated
+// crons.interval(
+//   "process-test-prompts",
+//   { minutes: 2 },
+//   (internal as any).providers_evaluation.processPendingPrompts,
+//   {}
+// );
+
 export default crons;

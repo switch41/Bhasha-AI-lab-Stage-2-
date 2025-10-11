@@ -74,7 +74,7 @@ export default function ResultsComparison() {
         prompt: newPrompt,
         expectedOutput: expectedOutput || undefined,
       });
-      toast.success("Test prompt added successfully!");
+      toast.success("Test prompt added! Evaluation in progress...");
       setNewPrompt("");
       setExpectedOutput("");
     } catch (error) {
@@ -226,9 +226,23 @@ export default function ResultsComparison() {
                 <div className="space-y-6">
                   {testPrompts.map((prompt) => (
                     <div key={prompt._id} className="border rounded-lg p-4 space-y-4">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Prompt</Label>
-                        <p className="text-sm font-medium mt-1">{prompt.prompt}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <Label className="text-xs text-muted-foreground">Prompt</Label>
+                          <p className="text-sm font-medium mt-1">{prompt.prompt}</p>
+                        </div>
+                        {prompt.status === "pending" && (
+                          <Badge variant="outline" className="ml-2">
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            Evaluating...
+                          </Badge>
+                        )}
+                        {prompt.status === "completed" && (
+                          <Badge variant="default" className="ml-2">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Completed
+                          </Badge>
+                        )}
                       </div>
 
                       {prompt.expectedOutput && (
@@ -244,7 +258,16 @@ export default function ResultsComparison() {
                           <div className="bg-muted/50 rounded p-3 min-h-[80px]">
                             <p className="text-sm">
                               {prompt.baseModelOutput || (
-                                <span className="text-muted-foreground italic">Pending evaluation...</span>
+                                <span className="text-muted-foreground italic flex items-center gap-2">
+                                  {prompt.status === "pending" ? (
+                                    <>
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      Generating...
+                                    </>
+                                  ) : (
+                                    "Pending evaluation..."
+                                  )}
+                                </span>
                               )}
                             </p>
                           </div>
@@ -258,7 +281,16 @@ export default function ResultsComparison() {
                           <div className="bg-primary/5 border border-primary/20 rounded p-3 min-h-[80px]">
                             <p className="text-sm">
                               {prompt.fineTunedOutput || (
-                                <span className="text-muted-foreground italic">Pending evaluation...</span>
+                                <span className="text-muted-foreground italic flex items-center gap-2">
+                                  {prompt.status === "pending" ? (
+                                    <>
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      Generating...
+                                    </>
+                                  ) : (
+                                    "Pending evaluation..."
+                                  )}
+                                </span>
                               )}
                             </p>
                           </div>

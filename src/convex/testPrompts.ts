@@ -1,6 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation, internalQuery } from "./_generated/server";
 import { getCurrentUser } from "./users";
+import { internal } from "./_generated/api";
 
 // Create test prompt
 export const create = mutation({
@@ -40,6 +41,17 @@ export const listByJob = query({
   },
 });
 
+// Internal version for backend use
+export const listByJobInternal = internalQuery({
+  args: { jobId: v.id("finetune_jobs") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("test_prompts")
+      .withIndex("by_job", (q) => q.eq("jobId", args.jobId))
+      .collect();
+  },
+});
+
 // Get test prompt
 export const get = query({
   args: { id: v.id("test_prompts") },
@@ -48,8 +60,8 @@ export const get = query({
   },
 });
 
-// Update test results
-export const updateResults = mutation({
+// Update test results (internal for backend use)
+export const updateResults = internalMutation({
   args: {
     id: v.id("test_prompts"),
     baseModelOutput: v.optional(v.string()),
@@ -59,11 +71,32 @@ export const updateResults = mutation({
     status: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Not authenticated");
-
     const { id, ...updates } = args;
     await ctx.db.patch(id, updates);
     return id;
+  },
+});
+
+// Trigger evaluation for a test prompt
+export const triggerEvaluation = mutation({
+  args: {
+    promptId: v.id("test_prompts"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    if (!user) throw new Error("Not authenticated");
+
+    const prompt = await ctx.db.get(args.promptId);
+    if (!prompt) throw new Error("Prompt not found");
+
+    // Schedule evaluation
+    await ctx.scheduler.runAfter(0, (internal as any).providers_evaluation.evaluatePrompt, {
+      promptId: args.promptId,
+      jobId: prompt.jobId,
+      prompt: prompt.prompt,
+      expectedOutput: prompt.expectedOutput,
+    });
+
+    return args.promptId;
   },
 });

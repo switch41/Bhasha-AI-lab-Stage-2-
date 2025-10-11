@@ -20,6 +20,7 @@ import type * as crons from "../crons.js";
 import type * as datasets from "../datasets.js";
 import type * as finetune from "../finetune.js";
 import type * as http from "../http.js";
+import type * as providers_evaluation from "../providers/evaluation.js";
 import type * as providers_gemini from "../providers/gemini.js";
 import type * as providers_openai from "../providers/openai.js";
 import type * as testPrompts from "../testPrompts.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   datasets: typeof datasets;
   finetune: typeof finetune;
   http: typeof http;
+  "providers/evaluation": typeof providers_evaluation;
   "providers/gemini": typeof providers_gemini;
   "providers/openai": typeof providers_openai;
   testPrompts: typeof testPrompts;
