@@ -97,6 +97,20 @@ const schema = defineSchema(
     }).index("by_user", ["userId"])
       .index("by_status", ["status"]),
 
+    // Test prompts for model evaluation
+    test_prompts: defineTable({
+      userId: v.id("users"),
+      jobId: v.id("finetune_jobs"),
+      prompt: v.string(),
+      expectedOutput: v.optional(v.string()),
+      baseModelOutput: v.optional(v.string()),
+      fineTunedOutput: v.optional(v.string()),
+      bleuScore: v.optional(v.number()),
+      culturalAccuracy: v.optional(v.number()),
+      status: v.string(),
+    }).index("by_job", ["jobId"])
+      .index("by_user", ["userId"]),
+
     // Activity feed
     activities: defineTable({
       userId: v.id("users"),

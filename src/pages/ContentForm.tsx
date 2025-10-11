@@ -32,6 +32,7 @@ export default function ContentForm() {
     dialect: "",
     culturalContext: "",
     status: "draft" as "draft" | "published",
+    enableAIAnalysis: false,
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -54,6 +55,7 @@ export default function ContentForm() {
         dialect: existingContent.dialect || "",
         culturalContext: existingContent.culturalContext || "",
         status: existingContent.status,
+        enableAIAnalysis: false,
       });
     }
   }, [existingContent]);
@@ -79,7 +81,7 @@ export default function ContentForm() {
         toast.success("Content updated successfully!");
       } else {
         await createContent(formData);
-        toast.success("Content created successfully!");
+        toast.success("Content created successfully!" + (formData.enableAIAnalysis ? " AI analysis in progress..." : ""));
       }
       navigate("/content");
     } catch (error) {
@@ -248,6 +250,26 @@ export default function ContentForm() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {!id && (
+                  <div className="flex items-center space-x-2 p-4 border rounded-lg bg-muted/50">
+                    <input
+                      type="checkbox"
+                      id="aiAnalysis"
+                      checked={formData.enableAIAnalysis}
+                      onChange={(e) => setFormData({ ...formData, enableAIAnalysis: e.target.checked })}
+                      className="h-4 w-4"
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor="aiAnalysis" className="cursor-pointer font-medium">
+                        Enable AI Quality Analysis
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Use Gemini API to automatically analyze content quality, cultural authenticity, and preservation value
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4">
                   <Button type="submit" disabled={isSaving} className="flex-1">
