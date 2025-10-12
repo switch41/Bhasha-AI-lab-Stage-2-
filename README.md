@@ -452,4 +452,4 @@ For comprehensive information about low-resource language AI training and cultur
 
 Made with ❤️ for preserving linguistic diversity through AI
 
-**Culture AI Suite** - Empowering communities to build AI models for their languages
+**Bhasha AI Lab** - Empowering communities to build AI models for their languages
