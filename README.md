@@ -1,8 +1,6 @@
-# Bhasha AI Lab : Advanced AI Model Training Platform and cultural preserver
+# Culture AI Suite: Advanced AI Model Training Platform
 
-  Bhasha AI Lab is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
-
-Live link - https://bharatforge.vercel.app/
+Culture AI Suite is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
 
 ## Features
 
@@ -452,4 +450,4 @@ For comprehensive information about low-resource language AI training and cultur
 
 Made with ❤️ for preserving linguistic diversity through AI
 
-**Bhasha AI Lab** - Empowering communities to build AI models for their languages
+**Culture AI Suite** - Empowering communities to build AI models for their languages
