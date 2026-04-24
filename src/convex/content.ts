@@ -23,6 +23,15 @@ function estimateTokenCount(text: string): number {
   return Math.ceil(text.length / 3);
 }
 
+function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 100);
+}
+
 // Enhanced validation helper
 function validateContentData(args: {
   text: string;
