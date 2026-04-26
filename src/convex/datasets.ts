@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query, internalQuery, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { getCurrentUser } from "./users";
+import { Doc, Id } from "./_generated/dataModel";
 
 // Helper function to analyze token distribution
 function analyzeTokenDistribution(content: any[]) {
@@ -119,8 +120,32 @@ export const normalize = mutation({
         regions: [...new Set(validContent.map((c) => c!.region).filter((r): r is string => Boolean(r)))],
         categories: [...new Set(validContent.map((c) => c!.category).filter((cat): cat is string => Boolean(cat)))],
         tokenDistribution: tokenAnalysis,
-      },
-    });
+  },
+});
+
+export const getById = query({
+  args: { id: v.id("datasets") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+export const getStats = query({
+  args: { userId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    let datasets;
+    if (args.userId) {
+      datasets = await ctx.db
+        .query("datasets")
+        .filter((q) => q.eq(q.field("userId"), args.userId))
+        .collect();
+    } else {
+      datasets = await ctx.db.query("datasets").collect();
+    }
+    const totalEntries = datasets.reduce((sum, d) => sum + d.size, 0);
+    return { totalDatasets: datasets.length, totalEntries };
+  },
+});
 
     return {
       originalSize: dataset.size,
