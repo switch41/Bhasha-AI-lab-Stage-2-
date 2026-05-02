@@ -4,6 +4,15 @@ import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 
+function average(numbers: number[]): number {
+  return numbers.length > 0 ? numbers.reduce((a, b) => a + b, 0) / numbers.length : 0;
+}
+
+function roundTo(value: number, decimals: number): number {
+  const factor = Math.pow(10, decimals);
+  return Math.round(value * factor) / factor;
+}
+
 // Evaluate a test prompt against both base and fine-tuned models
 export const evaluatePrompt = internalAction({
   args: {
