@@ -31,3 +31,9 @@ export const getCurrentUser = async (ctx: QueryCtx) => {
   }
   return await ctx.db.get(userId);
 };
+
+export const requireUser = async (ctx: QueryCtx) => {
+  const user = await getCurrentUser(ctx);
+  if (!user) throw new Error("Not authenticated");
+  return user;
+};
