@@ -3,6 +3,14 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { getCurrentUser } from "./users";
 
+export type FineTuneStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
+
+export const VALID_STATUSES: readonly FineTuneStatus[] = ["queued", "running", "completed", "failed", "cancelled"];
+
+export function isTerminalStatus(status: string): boolean {
+  return status === "completed" || status === "failed" || status === "cancelled";
+}
+
 // AI Parameter Optimizer
 export const recommend = query({
   args: {
