@@ -4,6 +4,13 @@ import { internal } from "./_generated/api";
 import { getCurrentUser } from "./users";
 import { detectFormat, parseCSV, parseJSON, applyFieldMapping, normalizeText, validateRecord, deduplicateRecords } from "./dataTransform";
 
+export type PipelineStatus = "pending" | "processing" | "completed" | "failed";
+
+export function calculateProgress(processed: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.min(Math.round((processed / total) * 100), 100);
+}
+
 // Create a new import pipeline
 export const create = mutation({
   args: {
