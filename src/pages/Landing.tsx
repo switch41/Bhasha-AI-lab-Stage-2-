@@ -31,7 +31,7 @@ export default function Landing() {
             <HeaderLogo onClick={() => navigate("/")} />
             <h1 className="text-xl font-bold tracking-tight">Bhasha AI Lab</h1>
           </div>
-          <Button onClick={() => navigate(isAuthenticated ? "/dashboard" : "/auth")}>
+          <Button aria-label={isAuthenticated ? "Go to Dashboard" : "Get Started"} onClick={() => navigate(isAuthenticated ? "/dashboard" : "/auth")}>
             {isAuthenticated ? "Dashboard" : "Get Started"}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
