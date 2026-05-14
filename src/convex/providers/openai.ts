@@ -4,6 +4,8 @@ import { v } from "convex/values";
 import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 
+const OPENAI_BASE = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+
 // OpenAI Fine-tuning Integration
 export const submitJob: any = internalAction({
   args: {
