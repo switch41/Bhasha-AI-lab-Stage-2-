@@ -4,6 +4,15 @@ import { internalAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { v } from "convex/values";
 
+type MetricKey = "accuracy" | "relevance" | "fluency" | "coherence";
+
+const METRIC_WEIGHTS: Record<MetricKey, number> = {
+  accuracy: 0.4,
+  relevance: 0.3,
+  fluency: 0.15,
+  coherence: 0.15,
+};
+
 function average(numbers: number[]): number {
   return numbers.length > 0 ? numbers.reduce((a, b) => a + b, 0) / numbers.length : 0;
 }
