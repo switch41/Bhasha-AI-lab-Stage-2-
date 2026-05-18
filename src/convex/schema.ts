@@ -82,7 +82,8 @@ const schema = defineSchema(
       }),
       status: v.string(),
     }).index("by_language", ["language"])
-      .index("by_user", ["userId"]),
+      .index("by_user", ["userId"])
+      .index("by_status", ["status"]),
 
     // Fine-tuning jobs
     finetune_jobs: defineTable({
