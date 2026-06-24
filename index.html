@@ -1,18 +1,362 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Culture AI Suite</title>
+  <title>Be right back!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+      font-family: system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      cursor: default;
+    }
+    .card {
+      text-align: center;
+      padding: 48px 32px 40px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+      border-radius: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+    }
+    .cat-wrap {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0 -20px;
+    }
+    .cat-svg {
+      width: 220px;
+      height: 220px;
+      display: block;
+      overflow: visible;
+      filter: drop-shadow(0 8px 32px rgba(255, 158, 108, 0.15));
+    }
+    .cat-svg * { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes tailSway {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(16deg); }
+    }
+    @keyframes blink {
+      0%, 94%, 100% { transform: scaleY(1); }
+      97% { transform: scaleY(0.08); }
+    }
+    @keyframes cheekGlow {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.65; }
+    }
+    .a-float { animation: float 3.2s ease-in-out infinite; }
+    .a-tail { animation: tailSway 2.5s ease-in-out infinite; transform-origin: 170px 150px; }
+    .a-blink { animation: blink 3.6s ease-in-out infinite; }
+    .a-glow { animation: cheekGlow 2s ease-in-out infinite; }
+
+    .st-arch .g-body { transform: translateY(-16px) scaleY(0.85); }
+    .st-arch .tail-def { opacity: 0; }
+    .st-arch .tail-arch { opacity: 1; transform: rotate(-35deg) translateY(-8px); }
+    .st-arch .g-head { transform: translateY(-6px) rotate(4deg); }
+    .st-arch .ear-move { transform: rotate(-10deg); }
+
+    .st-paw .g-paw-raised { opacity: 1; transform: translate(-12px, -28px) rotate(-18deg); }
+    .st-paw .paw-r { opacity: 0; }
+    .st-paw .g-head { transform: rotate(8deg); }
+    .st-paw .tail-def { opacity: 0; }
+    .st-paw .tail-paw { opacity: 1; transform: rotate(20deg) translateX(5px); }
+
+    .st-happy .eye-def { opacity: 0; }
+    .st-happy .eye-hap { opacity: 1; }
+    .st-happy .mouth-def { opacity: 0; }
+    .st-happy .mouth-hap { opacity: 1; }
+    .st-happy .tail-def { opacity: 0; }
+    .st-happy .tail-hap { opacity: 1; }
+
+    .thought {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      color: #5D4037;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 100px;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: opacity 0.5s, transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none;
+      z-index: 2;
+      letter-spacing: -0.01em;
+      animation: thoughtBob 3.2s ease-in-out infinite;
+    }
+    .thought.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .thought::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -8px;
+      border: 8px solid transparent;
+      border-top-color: #fff;
+    }
+    @keyframes thoughtBob {
+      0%, 100% { margin-top: 0; }
+      50% { margin-top: -4px; }
+    }
+
+    .hearts-box {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .heart {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0;
+      animation: shoot 1s ease-out forwards;
+    }
+    @keyframes shoot {
+      0% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+      25% { opacity: 1; transform: translate(0, -12px) scale(1.2); }
+      100% { opacity: 0; transform: translate(var(--hx), var(--hy)) scale(0.5); }
+    }
+    .hint {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 0.6s;
+    }
+    .hint.show { opacity: 1; }
+  </style>
 </head>
-
-
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+  <div class="card">
+    <div class="cat-wrap" id="catWrap">
+      <svg class="cat-svg" viewBox="0 0 220 220" id="catSvg" aria-label="Cute orange cat">
+        <defs>
+          <radialGradient id="fur" cx="50%" cy="35%">
+            <stop offset="0%" stop-color="#FFB88C"/>
+            <stop offset="100%" stop-color="#F09050"/>
+          </radialGradient>
+          <radialGradient id="cream" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#FFF8F0"/>
+            <stop offset="100%" stop-color="#FFE8D0"/>
+          </radialGradient>
+          <radialGradient id="earPink" cx="50%" cy="50%">
+            <stop offset="0%" stop-color="#FFC8C8"/>
+            <stop offset="100%" stop-color="#FF8888"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="110" cy="193" rx="56" ry="10" fill="rgba(0,0,0,0.12)"/>
+        <g class="tail-def a-tail">
+          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
+          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62" fill="none" stroke="url(#fur)" stroke-width="8" stroke-linecap="round"/>
+        </g>
+        <path class="tail-arch" d="M165,148 C192,140 200,95 190,62 C186,45 170,42 164,48" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round" style="opacity:0; transition:opacity 0.3s, transform 0.45s cubic-bezier(0.34,1.56,0.64,1);"/>
+        <path class="tail-paw" d="M165,148 C185,142 195,110 188,80" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round" style="opacity:0; transition:opacity 0.3s;"/>
+        <g class="tail-hap" style="opacity:0; transition:opacity 0.3s;">
+          <path d="M165,150 C192,140 200,100 190,70" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
+          <animateTransform attributeName="transform" type="rotate" values="-12 170 150;14 170 150;-12 170 150" dur="0.2s" repeatCount="indefinite"/>
+        </g>
+        <g class="g-body a-float" style="transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+          <ellipse cx="110" cy="148" rx="48" ry="42" fill="url(#fur)"/>
+          <ellipse cx="110" cy="152" rx="34" ry="32" fill="url(#cream)" opacity="0.5"/>
+          <path d="M68,136 Q80,128 92,136" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <path d="M128,136 Q140,128 152,136" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <path d="M74,152 Q86,144 98,152" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <path d="M122,152 Q134,144 146,152" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <ellipse cx="78" cy="184" rx="13" ry="8" fill="#E8844A"/>
+          <ellipse cx="142" cy="184" rx="13" ry="8" fill="#E8844A"/>
+          <ellipse class="paw-r" cx="96" cy="188" rx="10" ry="7" fill="#FFA066"/>
+          <ellipse cx="124" cy="188" rx="10" ry="7" fill="#FFA066"/>
+          <ellipse class="paw-r" cx="96" cy="190" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
+          <ellipse cx="124" cy="190" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
+        </g>
+        <g class="g-paw-raised" style="opacity:0; transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;">
+          <ellipse cx="140" cy="168" rx="10" ry="7" fill="#FFA066"/>
+          <ellipse cx="140" cy="170" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
+        </g>
+        <g class="g-head a-float" style="transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);">
+          <g class="ear-move" style="transform-origin:74px 68px; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+            <polygon points="74,68 62,22 92,52" fill="url(#fur)"/>
+            <polygon points="76,64 68,32 89,54" fill="url(#earPink)"/>
+          </g>
+          <g class="ear-move" style="transform-origin:146px 68px; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); animation-delay:-2s;">
+            <polygon points="146,68 158,22 128,52" fill="url(#fur)"/>
+            <polygon points="144,64 152,32 131,54" fill="url(#earPink)"/>
+          </g>
+          <circle cx="110" cy="88" r="44" fill="url(#fur)"/>
+          <ellipse cx="110" cy="95" rx="30" ry="26" fill="url(#cream)" opacity="0.55"/>
+          <path d="M98,54 Q110,48 122,54" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <path d="M92,62 Q110,55 128,62" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
+          <g class="eye-def a-blink">
+            <ellipse cx="92" cy="82" rx="10" ry="11" fill="#2D1B14"/>
+            <ellipse cx="128" cy="82" rx="10" ry="11" fill="#2D1B14"/>
+            <ellipse cx="89" cy="77" rx="4.5" ry="5" fill="white"/>
+            <ellipse cx="125" cy="77" rx="4.5" ry="5" fill="white"/>
+            <circle cx="94" cy="85" r="2" fill="white" opacity="0.6"/>
+            <circle cx="130" cy="85" r="2" fill="white" opacity="0.6"/>
+          </g>
+          <g class="eye-hap" style="opacity:0; transition:opacity 0.3s;">
+            <ellipse cx="92" cy="84" rx="10" ry="11" fill="#2D1B14"/>
+            <ellipse cx="128" cy="84" rx="10" ry="11" fill="#2D1B14"/>
+            <path d="M84,80 Q92,72 100,80" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M120,80 Q128,72 136,80" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
+          <ellipse class="a-glow" cx="76" cy="98" rx="9" ry="6" fill="#FF8888" opacity="0.4"/>
+          <ellipse class="a-glow" cx="144" cy="98" rx="9" ry="6" fill="#FF8888" opacity="0.4" style="animation-delay:-1s;"/>
+          <polygon points="110,93 106,98 114,98" fill="#FF6565"/>
+          <g class="mouth-def" style="transition:opacity 0.3s;">
+            <path d="M104,100 Q110,107 110,100" fill="none" stroke="#7A5A4A" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M116,100 Q110,107 110,100" fill="none" stroke="#7A5A4A" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+          <g class="mouth-hap" style="opacity:0; transition:opacity 0.3s;">
+            <path d="M98,100 Q110,116 122,100" fill="none" stroke="#7A5A4A" stroke-width="2" stroke-linecap="round"/>
+            <path d="M104,104 Q110,112 116,104" fill="#FF6565" opacity="0.3"/>
+          </g>
+          <g opacity="0.35">
+            <line x1="78" y1="92" x2="56" y2="86" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="78" y1="98" x2="54" y2="98" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="78" y1="104" x2="56" y2="110" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="142" y1="92" x2="164" y2="86" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="142" y1="98" x2="166" y2="98" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="142" y1="104" x2="164" y2="110" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <path d="M76,118 Q110,130 144,118" fill="none" stroke="#6BCB77" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="110" cy="124" r="5" fill="#FFD700"/>
+          <circle cx="110" cy="124" r="2.5" fill="#FFA500"/>
+        </g>
+      </svg>
+      <div class="hearts-box" id="hearts"></div>
+      <div class="thought" id="thought">✦ Pet me! ✦</div>
+    </div>
+    <h1>We'll be back soon!</h1>
+    <p>Our team is giving the site some love</p>
+    <p style="font-size:14px; color:rgba(255,255,255,0.25); margin-top:10px;">🐾</p>
+    <div class="hint" id="hint">tap to pet the cat</div>
+  </div>
+  <script>
+    (() => {
+      const w = document.getElementById('catWrap');
+      const s = document.getElementById('catSvg');
+      const h = document.getElementById('hearts');
+      const tb = document.getElementById('thought');
+      let st = 0, busy = false, rt = null;
+      const pl = s.querySelector('.eye-def :nth-child(3)');
+      const pr = s.querySelector('.eye-def :nth-child(4)');
+      const ER = 3;
+      function eyes(e) {
+        if (st === 3) return;
+        const r = w.getBoundingClientRect();
+        const cx = r.left + r.width/2, cy = r.top + r.height/2;
+        const x = Math.max(-ER, Math.min(ER, ((e.clientX-cx)/(r.width/2))*ER));
+        const y = Math.max(-ER, Math.min(ER, ((e.clientY-cy)/(r.height/2))*ER));
+        if (pl) { pl.setAttribute('cx', 89 + x); pl.setAttribute('cy', 77 + y); }
+        if (pr) { pr.setAttribute('cx', 125 + x); pr.setAttribute('cy', 77 + y); }
+      }
+      document.addEventListener('mousemove', eyes);
+      document.addEventListener('touchmove', e => { const t = e.touches[0]; if (t) eyes(t); });
+      function hearts(n) {
+        const es = ['💖','💗','✨','💕','❤️‍🔥'];
+        for (let i = 0; i < n; i++) {
+          const e = document.createElement('div');
+          e.className = 'heart';
+          e.textContent = es[i%es.length];
+          e.style.left = (50 + i*28) + 'px';
+          e.style.bottom = '60px';
+          e.style.setProperty('--hx', ((Math.random()-0.5)*80) + 'px');
+          e.style.setProperty('--hy', (-(80+Math.random()*50))+'px');
+          e.style.fontSize = (20+Math.random()*12)+'px';
+          e.style.animationDelay = (i*0.1) + 's';
+          h.appendChild(e);
+          e.onanimationend = () => e.remove();
+        }
+      }
+      function clear() {
+        s.classList.remove('st-arch','st-paw','st-happy');
+        s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '1');
+        s.querySelectorAll('.tail-arch').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.tail-paw').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.tail-hap').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.eye-hap').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.eye-def').forEach(e => e.style.opacity = '1');
+        s.querySelectorAll('.mouth-hap').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.mouth-def').forEach(e => e.style.opacity = '1');
+        s.querySelectorAll('.g-paw-raised').forEach(e => e.style.opacity = '0');
+        s.querySelectorAll('.paw-r').forEach(e => e.style.opacity = '1');
+        s.querySelectorAll('.a-float').forEach(e => e.style.animationPlayState = 'running');
+      }
+      function go(v) {
+        if (busy) return;
+        busy = true; clear();
+        if (rt) { clearTimeout(rt); rt = null; }
+        st = v;
+        if (v === 1) {
+          s.classList.add('st-arch');
+          s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '0');
+          s.querySelectorAll('.tail-arch').forEach(e => e.style.opacity = '1');
+          hearts(5);
+          setTimeout(() => busy = false, 500);
+        } else if (v === 2) {
+          s.classList.add('st-paw');
+          s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '0');
+          s.querySelectorAll('.tail-paw').forEach(e => e.style.opacity = '1');
+          s.querySelectorAll('.g-paw-raised').forEach(e => e.style.opacity = '1');
+          s.querySelectorAll('.paw-r').forEach(e => e.style.opacity = '0');
+          hearts(3);
+          setTimeout(() => busy = false, 500);
+        } else if (v === 3) {
+          s.classList.add('st-happy');
+          s.querySelectorAll('.eye-def').forEach(e => e.style.opacity = '0');
+          s.querySelectorAll('.eye-hap').forEach(e => e.style.opacity = '1');
+          s.querySelectorAll('.mouth-def').forEach(e => e.style.opacity = '0');
+          s.querySelectorAll('.mouth-hap').forEach(e => e.style.opacity = '1');
+          s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '0');
+          s.querySelectorAll('.tail-hap').forEach(e => e.style.opacity = '1');
+          hearts(4);
+          setTimeout(() => busy = false, 500);
+        } else { busy = false; }
+        if (v) { rt = setTimeout(() => { if (st === v) { clear(); st = 0; busy = false; } }, 2500); }
+      }
+      w.addEventListener('click', () => {
+        if (busy) return;
+        const n = st === 0 ? 1 : st === 1 ? 2 : st === 2 ? 3 : 0;
+        go(n);
+        clearTimeout(window._ht);
+        document.getElementById('hint').classList.remove('show');
+        tb.classList.remove('show');
+      });
+      let it;
+      function rh() {
+        clearTimeout(it);
+        document.getElementById('hint').classList.remove('show');
+        tb.classList.remove('show');
+        it = setTimeout(() => { document.getElementById('hint').classList.add('show'); tb.classList.add('show'); }, 3000);
+      }
+      ['mousemove','click','touchstart'].forEach(ev => document.addEventListener(ev, rh));
+      rh();
+      st = 0;
+    })();
+  </script>
 </body>
-
 </html>
-
