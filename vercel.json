@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "echo ok",
+  "installCommand": "echo ok",
+  "framework": null,
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
