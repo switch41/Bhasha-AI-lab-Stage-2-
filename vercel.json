@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "buildCommand": null,
-  "installCommand": null,
+  "buildCommand": "",
+  "installCommand": "",
   "framework": null,
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/maintenance.html"
+      "destination": "/index.html"
     }
   ]
 }

@@ -44,7 +44,6 @@
     }
     .cat-svg * { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-    /* Idle animations */
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-3px); }
@@ -66,21 +65,18 @@
     .a-blink { animation: blink 3.6s ease-in-out infinite; }
     .a-glow { animation: cheekGlow 2s ease-in-out infinite; }
 
-    /* State: Arch */
     .st-arch .g-body { transform: translateY(-16px) scaleY(0.85); }
     .st-arch .tail-def { opacity: 0; }
     .st-arch .tail-arch { opacity: 1; transform: rotate(-35deg) translateY(-8px); }
     .st-arch .g-head { transform: translateY(-6px) rotate(4deg); }
     .st-arch .ear-move { transform: rotate(-10deg); }
 
-    /* State: Paw */
     .st-paw .g-paw-raised { opacity: 1; transform: translate(-12px, -28px) rotate(-18deg); }
     .st-paw .paw-r { opacity: 0; }
     .st-paw .g-head { transform: rotate(8deg); }
     .st-paw .tail-def { opacity: 0; }
     .st-paw .tail-paw { opacity: 1; transform: rotate(20deg) translateX(5px); }
 
-    /* State: Happy */
     .st-happy .eye-def { opacity: 0; }
     .st-happy .eye-hap { opacity: 1; }
     .st-happy .mouth-def { opacity: 0; }
@@ -88,7 +84,6 @@
     .st-happy .tail-def { opacity: 0; }
     .st-happy .tail-hap { opacity: 1; }
 
-    /* Thought bubble */
     .thought {
       position: absolute;
       bottom: calc(100% + 6px);
@@ -127,7 +122,6 @@
       50% { margin-top: -4px; }
     }
 
-    /* Hearts */
     .hearts-box {
       position: absolute;
       inset: 0;
@@ -173,62 +167,36 @@
             <stop offset="100%" stop-color="#FF8888"/>
           </radialGradient>
         </defs>
-
-        <!-- Shadow -->
         <ellipse cx="110" cy="193" rx="56" ry="10" fill="rgba(0,0,0,0.12)"/>
-
-        <!-- ==== TAILS ==== -->
         <g class="tail-def a-tail">
-          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62"
-                fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
-          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62"
-                fill="none" stroke="url(#fur)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
+          <path d="M165,150 C190,138 198,100 188,72 C184,58 170,54 162,62" fill="none" stroke="url(#fur)" stroke-width="8" stroke-linecap="round"/>
         </g>
-        <path class="tail-arch"
-              d="M165,148 C192,140 200,95 190,62 C186,45 170,42 164,48"
-              fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"
-              style="opacity:0; transition:opacity 0.3s, transform 0.45s cubic-bezier(0.34,1.56,0.64,1);"/>
-        <path class="tail-paw"
-              d="M165,148 C185,142 195,110 188,80"
-              fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"
-              style="opacity:0; transition:opacity 0.3s;"/>
+        <path class="tail-arch" d="M165,148 C192,140 200,95 190,62 C186,45 170,42 164,48" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round" style="opacity:0; transition:opacity 0.3s, transform 0.45s cubic-bezier(0.34,1.56,0.64,1);"/>
+        <path class="tail-paw" d="M165,148 C185,142 195,110 188,80" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round" style="opacity:0; transition:opacity 0.3s;"/>
         <g class="tail-hap" style="opacity:0; transition:opacity 0.3s;">
-          <path d="M165,150 C192,140 200,100 190,70"
-                fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
-          <animateTransform attributeName="transform" type="rotate"
-            values="-12 170 150;14 170 150;-12 170 150"
-            dur="0.2s" repeatCount="indefinite"/>
+          <path d="M165,150 C192,140 200,100 190,70" fill="none" stroke="#F09050" stroke-width="11" stroke-linecap="round"/>
+          <animateTransform attributeName="transform" type="rotate" values="-12 170 150;14 170 150;-12 170 150" dur="0.2s" repeatCount="indefinite"/>
         </g>
-
-        <!-- ==== BODY ==== -->
         <g class="g-body a-float" style="transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);">
           <ellipse cx="110" cy="148" rx="48" ry="42" fill="url(#fur)"/>
           <ellipse cx="110" cy="152" rx="34" ry="32" fill="url(#cream)" opacity="0.5"/>
-          <!-- stripes -->
           <path d="M68,136 Q80,128 92,136" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
           <path d="M128,136 Q140,128 152,136" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
           <path d="M74,152 Q86,144 98,152" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
           <path d="M122,152 Q134,144 146,152" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
-          <!-- back paws -->
           <ellipse cx="78" cy="184" rx="13" ry="8" fill="#E8844A"/>
           <ellipse cx="142" cy="184" rx="13" ry="8" fill="#E8844A"/>
-          <!-- front paws -->
           <ellipse class="paw-r" cx="96" cy="188" rx="10" ry="7" fill="#FFA066"/>
           <ellipse cx="124" cy="188" rx="10" ry="7" fill="#FFA066"/>
           <ellipse class="paw-r" cx="96" cy="190" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
           <ellipse cx="124" cy="190" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
         </g>
-
-        <!-- ==== RAISED PAW (hidden in idle) ==== -->
         <g class="g-paw-raised" style="opacity:0; transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;">
           <ellipse cx="140" cy="168" rx="10" ry="7" fill="#FFA066"/>
           <ellipse cx="140" cy="170" rx="4" ry="3" fill="#FFD4B0" opacity="0.4"/>
         </g>
-
-        <!-- ==== HEAD ==== -->
         <g class="g-head a-float" style="transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1);">
-
-          <!-- ears -->
           <g class="ear-move" style="transform-origin:74px 68px; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);">
             <polygon points="74,68 62,22 92,52" fill="url(#fur)"/>
             <polygon points="76,64 68,32 89,54" fill="url(#earPink)"/>
@@ -237,52 +205,35 @@
             <polygon points="146,68 158,22 128,52" fill="url(#fur)"/>
             <polygon points="144,64 152,32 131,54" fill="url(#earPink)"/>
           </g>
-
-          <!-- head base -->
           <circle cx="110" cy="88" r="44" fill="url(#fur)"/>
           <ellipse cx="110" cy="95" rx="30" ry="26" fill="url(#cream)" opacity="0.55"/>
-
-          <!-- forehead stripes -->
           <path d="M98,54 Q110,48 122,54" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
           <path d="M92,62 Q110,55 128,62" fill="none" stroke="#D4733A" stroke-width="3" opacity="0.2" stroke-linecap="round"/>
-
-          <!-- eyes -->
           <g class="eye-def a-blink">
             <ellipse cx="92" cy="82" rx="10" ry="11" fill="#2D1B14"/>
             <ellipse cx="128" cy="82" rx="10" ry="11" fill="#2D1B14"/>
-            <!-- highlights -->
             <ellipse cx="89" cy="77" rx="4.5" ry="5" fill="white"/>
             <ellipse cx="125" cy="77" rx="4.5" ry="5" fill="white"/>
             <circle cx="94" cy="85" r="2" fill="white" opacity="0.6"/>
             <circle cx="130" cy="85" r="2" fill="white" opacity="0.6"/>
           </g>
-          <!-- happy eyes -->
           <g class="eye-hap" style="opacity:0; transition:opacity 0.3s;">
             <ellipse cx="92" cy="84" rx="10" ry="11" fill="#2D1B14"/>
             <ellipse cx="128" cy="84" rx="10" ry="11" fill="#2D1B14"/>
             <path d="M84,80 Q92,72 100,80" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
             <path d="M120,80 Q128,72 136,80" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
           </g>
-
-          <!-- blush -->
           <ellipse class="a-glow" cx="76" cy="98" rx="9" ry="6" fill="#FF8888" opacity="0.4"/>
           <ellipse class="a-glow" cx="144" cy="98" rx="9" ry="6" fill="#FF8888" opacity="0.4" style="animation-delay:-1s;"/>
-
-          <!-- nose -->
           <polygon points="110,93 106,98 114,98" fill="#FF6565"/>
-
-          <!-- mouth idle -->
           <g class="mouth-def" style="transition:opacity 0.3s;">
             <path d="M104,100 Q110,107 110,100" fill="none" stroke="#7A5A4A" stroke-width="1.8" stroke-linecap="round"/>
             <path d="M116,100 Q110,107 110,100" fill="none" stroke="#7A5A4A" stroke-width="1.8" stroke-linecap="round"/>
           </g>
-          <!-- mouth happy -->
           <g class="mouth-hap" style="opacity:0; transition:opacity 0.3s;">
             <path d="M98,100 Q110,116 122,100" fill="none" stroke="#7A5A4A" stroke-width="2" stroke-linecap="round"/>
             <path d="M104,104 Q110,112 116,104" fill="#FF6565" opacity="0.3"/>
           </g>
-
-          <!-- whiskers -->
           <g opacity="0.35">
             <line x1="78" y1="92" x2="56" y2="86" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
             <line x1="78" y1="98" x2="54" y2="98" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
@@ -291,37 +242,29 @@
             <line x1="142" y1="98" x2="166" y2="98" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
             <line x1="142" y1="104" x2="164" y2="110" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
           </g>
-
-          <!-- collar -->
           <path d="M76,118 Q110,130 144,118" fill="none" stroke="#6BCB77" stroke-width="4" stroke-linecap="round"/>
           <circle cx="110" cy="124" r="5" fill="#FFD700"/>
           <circle cx="110" cy="124" r="2.5" fill="#FFA500"/>
         </g>
       </svg>
-
       <div class="hearts-box" id="hearts"></div>
       <div class="thought" id="thought">✦ Pet me! ✦</div>
     </div>
-
     <h1>We'll be back soon!</h1>
     <p>Our team is giving the site some love</p>
     <p style="font-size:14px; color:rgba(255,255,255,0.25); margin-top:10px;">🐾</p>
     <div class="hint" id="hint">tap to pet the cat</div>
   </div>
-
   <script>
     (() => {
       const w = document.getElementById('catWrap');
       const s = document.getElementById('catSvg');
       const h = document.getElementById('hearts');
       const tb = document.getElementById('thought');
-
       let st = 0, busy = false, rt = null;
-
       const pl = s.querySelector('.eye-def :nth-child(3)');
       const pr = s.querySelector('.eye-def :nth-child(4)');
       const ER = 3;
-
       function eyes(e) {
         if (st === 3) return;
         const r = w.getBoundingClientRect();
@@ -333,7 +276,6 @@
       }
       document.addEventListener('mousemove', eyes);
       document.addEventListener('touchmove', e => { const t = e.touches[0]; if (t) eyes(t); });
-
       function hearts(n) {
         const es = ['💖','💗','✨','💕','❤️‍🔥'];
         for (let i = 0; i < n; i++) {
@@ -350,7 +292,6 @@
           e.onanimationend = () => e.remove();
         }
       }
-
       function clear() {
         s.classList.remove('st-arch','st-paw','st-happy');
         s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '1');
@@ -365,14 +306,11 @@
         s.querySelectorAll('.paw-r').forEach(e => e.style.opacity = '1');
         s.querySelectorAll('.a-float').forEach(e => e.style.animationPlayState = 'running');
       }
-
       function go(v) {
         if (busy) return;
-        busy = true;
-        clear();
+        busy = true; clear();
         if (rt) { clearTimeout(rt); rt = null; }
         st = v;
-
         if (v === 1) {
           s.classList.add('st-arch');
           s.querySelectorAll('.tail-def').forEach(e => e.style.opacity = '0');
@@ -397,17 +335,9 @@
           s.querySelectorAll('.tail-hap').forEach(e => e.style.opacity = '1');
           hearts(4);
           setTimeout(() => busy = false, 500);
-        } else {
-          busy = false;
-        }
-
-        if (v) {
-          rt = setTimeout(() => {
-            if (st === v) { clear(); st = 0; busy = false; }
-          }, 2500);
-        }
+        } else { busy = false; }
+        if (v) { rt = setTimeout(() => { if (st === v) { clear(); st = 0; busy = false; } }, 2500); }
       }
-
       w.addEventListener('click', () => {
         if (busy) return;
         const n = st === 0 ? 1 : st === 1 ? 2 : st === 2 ? 3 : 0;
@@ -416,20 +346,15 @@
         document.getElementById('hint').classList.remove('show');
         tb.classList.remove('show');
       });
-
       let it;
       function rh() {
         clearTimeout(it);
         document.getElementById('hint').classList.remove('show');
         tb.classList.remove('show');
-        it = setTimeout(() => {
-          document.getElementById('hint').classList.add('show');
-          tb.classList.add('show');
-        }, 3000);
+        it = setTimeout(() => { document.getElementById('hint').classList.add('show'); tb.classList.add('show'); }, 3000);
       }
       ['mousemove','click','touchstart'].forEach(ev => document.addEventListener(ev, rh));
       rh();
-
       st = 0;
     })();
   </script>

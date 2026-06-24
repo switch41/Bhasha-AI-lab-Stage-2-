@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "echo maintenance-mode",
-    "build:analyze": "echo maintenance-mode",
-    "build:production": "echo maintenance-mode",
+    "build": "tsc -b && vite build",
+    "build:analyze": "tsc -b && vite build --mode analyze",
+    "build:production": "NODE_ENV=production tsc -b && vite build --mode production",
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "vercel-build": "echo maintenance-mode"
+    "vercel-build": "pnpm run build:production"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.86",
