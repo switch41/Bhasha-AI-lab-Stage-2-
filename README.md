@@ -1,6 +1,6 @@
-# Culture AI Suite: Advanced AI Model Training Platform
+# Bhasha AI labs: Advanced AI Model Training Platform
 
-Culture AI Suite is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
+Bhasha AI labs is a powerful, comprehensive platform designed by **Bhasha AI Lab** to democratize AI model training for low-resource Indian languages. With its modern interface and advanced feature set, it provides an efficient way to collect linguistic content, create curated datasets, and fine-tune custom AI models while preserving cultural and linguistic diversity.
 
 ## Features
 
